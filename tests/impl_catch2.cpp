@@ -28,7 +28,13 @@ namespace leakproof
 }
 #endif
 
-int main(int argc, char* argv[])
+
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      toml_test_impl_catch2_main(cnt, arr)
+#endif
+
+int main(int argc, const char** argv)
 {
 	#ifdef _WIN32
 		SetConsoleOutputCP(65001);

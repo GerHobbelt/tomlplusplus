@@ -104,7 +104,13 @@ namespace
 		"################################################################################"sv;
 }
 
-int main()
+
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      toml_example_error_printer_main(cnt, arr)
+#endif
+
+int main(int argc, const char** argv)
 {
 	examples::init();
 
