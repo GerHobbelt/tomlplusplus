@@ -4,15 +4,8 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
-#include "preprocessor.h"
 #include "std_string.h"
 #include "std_new.h"
-#include "header_start.h"
-
-//#---------------------------------------------------------------------------------------------------------------------
-//# INCLUDES
-//#---------------------------------------------------------------------------------------------------------------------
-
 TOML_DISABLE_WARNINGS;
 #include <cstdint>
 #include <cstddef>
@@ -25,6 +18,7 @@ TOML_DISABLE_WARNINGS;
 #include <iosfwd>
 #include <type_traits>
 TOML_ENABLE_WARNINGS;
+#include "header_start.h"
 
 //#---------------------------------------------------------------------------------------------------------------------
 //# ENVIRONMENT GROUND-TRUTHS
@@ -100,8 +94,10 @@ TOML_NAMESPACE_START
 	template <typename>
 	class value;
 
-	class default_formatter;
+	class toml_formatter;
 	class json_formatter;
+	class yaml_formatter;
+	class xml_formatter;
 
 	TOML_ABI_NAMESPACE_BOOL(TOML_EXCEPTIONS, ex, noex);
 #if TOML_EXCEPTIONS
@@ -110,15 +106,6 @@ TOML_NAMESPACE_START
 	class parse_result;
 #endif
 	TOML_ABI_NAMESPACE_END; // TOML_EXCEPTIONS
-
-	TOML_NODISCARD
-	TOML_ATTR(const)
-	TOML_ALWAYS_INLINE
-	TOML_CONSTEVAL
-	size_t operator"" _sz(unsigned long long n) noexcept
-	{
-		return static_cast<size_t>(n);
-	}
 }
 TOML_NAMESPACE_END;
 
@@ -230,7 +217,7 @@ TOML_NAMESPACE_START // abi namespace
 	}
 
 	/// \brief	TOML node type identifiers.
-	enum class node_type : uint8_t
+	enum class TOML_CLOSED_ENUM node_type : uint8_t
 	{
 		none,			///< Not-a-node.
 		table,			///< The node is a toml::table.
@@ -250,7 +237,6 @@ TOML_NAMESPACE_START // abi namespace
 	/// auto arr = toml::array{ 1, 2.0, "3", false };
 	/// for (size_t i = 0; i < arr.size() i++)
 	/// 	std::cout << "Element ["sv << i << "] is: "sv << arr[i].type() << "\n";
-	///
 	/// \ecpp
 	///
 	/// \out
@@ -276,7 +262,7 @@ TOML_NAMESPACE_START // abi namespace
 	}
 
 	/// \brief Metadata associated with TOML values.
-	enum class value_flags : uint8_t
+	enum class TOML_OPEN_FLAGS_ENUM value_flags : uint16_t
 	{
 		/// \brief None.
 		none,
@@ -292,23 +278,52 @@ TOML_NAMESPACE_START // abi namespace
 	};
 	TOML_MAKE_FLAGS(value_flags);
 
+	/// \brief Special #toml::value_flags constant used for array + table insert functions to specify that any value
+	/// nodes being copied should not have their flags property overridden by the inserting function's `flags` argument.
+	inline constexpr value_flags preserve_source_value_flags =
+		POXY_IMPLEMENTATION_DETAIL(value_flags{ static_cast<std::underlying_type_t<value_flags>>(-1) });
+
 	/// \brief	Format flags for modifying how TOML data is printed to streams.
-	enum class format_flags : uint8_t
+	///
+	/// \note	Formatters may disregard/override any of these flags according to the requirements of their
+	///			output target (e.g. #toml::json_formatter will always apply quotes to dates and times).
+	enum class TOML_CLOSED_FLAGS_ENUM format_flags : uint64_t
 	{
 		/// \brief None.
 		none,
 
 		/// \brief Dates and times will be emitted as quoted strings.
-		quote_dates_and_times = 1,
+		quote_dates_and_times = (1ull << 0),
+
+		/// \brief Infinities and NaNs will be emitted as quoted strings.
+		quote_infinities_and_nans = (1ull << 1),
 
 		/// \brief Strings will be emitted as single-quoted literal strings where possible.
-		allow_literal_strings = 2,
+		allow_literal_strings = (1ull << 2),
 
 		/// \brief Strings containing newlines will be emitted as triple-quoted 'multi-line' strings where possible.
-		allow_multi_line_strings = 4,
+		allow_multi_line_strings = (1ull << 3),
 
-		/// \brief Values with special format flags will be formatted accordingly.
-		allow_value_format_flags = 8,
+		/// \brief Allow real tab characters in string literals (as opposed to the escaped form `\t`).
+		allow_real_tabs_in_strings = (1ull << 4),
+
+		/// \brief Allow integers with #value_flags::format_as_binary to be emitted as binary.
+		allow_binary_integers = (1ull << 5),
+
+		/// \brief Allow integers with #value_flags::format_as_octal to be emitted as octal.
+		allow_octal_integers = (1ull << 6),
+
+		/// \brief Allow integers with #value_flags::format_as_hexadecimal to be emitted as hexadecimal.
+		allow_hexadecimal_integers = (1ull << 7),
+
+		/// \brief Apply indentation to tables nested within other tables/arrays.
+		indent_sub_tables = (1ull << 8),
+
+		/// \brief Apply indentation to array elements when the array is forced to wrap over multiple lines.
+		indent_array_elements = (1ull << 9),
+
+		/// \brief Combination mask of all indentation-enabling flags.
+		indentation = indent_sub_tables | indent_array_elements,
 	};
 	TOML_MAKE_FLAGS(format_flags);
 
@@ -330,10 +345,18 @@ TOML_NAMESPACE_START // abi namespace
 	template <typename T>
 	struct TOML_TRIVIAL_ABI inserter
 	{
-		T&& value;
+		static_assert(std::is_reference_v<T>);
+
+		T value;
 	};
 	template <typename T>
-	inserter(T &&) -> inserter<T>;
+	inserter(T &&) -> inserter<T&&>;
+	template <typename T>
+	inserter(T&) -> inserter<T&>;
+
+	/// \brief The 'default' formatter used by TOML objects when they are printed to a stream.
+	/// \detail This is an alias for #toml::toml_formatter.
+	using default_formatter = toml_formatter;
 }
 TOML_NAMESPACE_END;
 
@@ -344,10 +367,16 @@ TOML_NAMESPACE_END;
 TOML_IMPL_NAMESPACE_START
 {
 	template <typename T>
-	using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
+	using remove_cvref = std::remove_cv_t<std::remove_reference_t<T>>;
+
+	template <typename... T>
+	using common_signed_type = std::common_type_t<std::make_signed_t<T>...>;
 
 	template <typename T, typename... U>
 	inline constexpr bool is_one_of = (false || ... || std::is_same_v<T, U>);
+
+	template <typename... T>
+	inline constexpr bool all_integral = (std::is_integral_v<T> && ...);
 
 	template <typename T>
 	inline constexpr bool is_cvref = std::is_reference_v<T> || std::is_const_v<T> || std::is_volatile_v<T>;
@@ -355,6 +384,14 @@ TOML_IMPL_NAMESPACE_START
 	template <typename T>
 	inline constexpr bool is_wide_string =
 		is_one_of<std::decay_t<T>, const wchar_t*, wchar_t*, std::wstring_view, std::wstring>;
+
+	template <typename T>
+	static constexpr bool value_retrieval_is_nothrow = !std::is_same_v<remove_cvref<T>, std::string>
+#if TOML_HAS_CHAR8
+													&& !std::is_same_v<remove_cvref<T>, std::u8string>
+#endif
+
+													&& !is_wide_string<T>;
 
 	template <typename T>
 	inline constexpr bool dependent_false = false;
@@ -628,7 +665,7 @@ TOML_IMPL_NAMESPACE_START
 #endif
 
 	// string value_traits specializations - wchar_t-based strings on Windows
-#if TOML_WINDOWS_COMPAT
+#if TOML_ENABLE_WINDOWS_COMPAT
 	template <typename T>
 	struct wstring_value_traits
 	{
@@ -776,7 +813,7 @@ TOML_IMPL_NAMESPACE_START
 		static constexpr auto value = node_type::none;
 	};
 	template <typename T>
-	inline constexpr node_type node_type_of = node_type_getter<unwrap_node<remove_cvref_t<T>>>::value;
+	inline constexpr node_type node_type_of = node_type_getter<unwrap_node<remove_cvref<T>>>::value;
 }
 TOML_IMPL_NAMESPACE_END;
 /// \endcond
@@ -785,11 +822,11 @@ TOML_NAMESPACE_START
 {
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a toml::table.
 	template <typename T>
-	inline constexpr bool is_table = std::is_same_v<impl::remove_cvref_t<T>, table>;
+	inline constexpr bool is_table = std::is_same_v<impl::remove_cvref<T>, table>;
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a toml::array.
 	template <typename T>
-	inline constexpr bool is_array = std::is_same_v<impl::remove_cvref_t<T>, array>;
+	inline constexpr bool is_array = std::is_same_v<impl::remove_cvref<T>, array>;
 
 	/// \brief	Metafunction for determining if a type satisfies either toml::is_table or toml::is_array.
 	template <typename T>
@@ -797,15 +834,15 @@ TOML_NAMESPACE_START
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a std::string or toml::value<std::string>.
 	template <typename T>
-	inline constexpr bool is_string = std::is_same_v<impl::wrap_node<impl::remove_cvref_t<T>>, value<std::string>>;
+	inline constexpr bool is_string = std::is_same_v<impl::wrap_node<impl::remove_cvref<T>>, value<std::string>>;
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a int64_t or toml::value<int64_t>.
 	template <typename T>
-	inline constexpr bool is_integer = std::is_same_v<impl::wrap_node<impl::remove_cvref_t<T>>, value<int64_t>>;
+	inline constexpr bool is_integer = std::is_same_v<impl::wrap_node<impl::remove_cvref<T>>, value<int64_t>>;
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a double or toml::value<double>.
 	template <typename T>
-	inline constexpr bool is_floating_point = std::is_same_v<impl::wrap_node<impl::remove_cvref_t<T>>, value<double>>;
+	inline constexpr bool is_floating_point = std::is_same_v<impl::wrap_node<impl::remove_cvref<T>>, value<double>>;
 
 	/// \brief	Metafunction for determining if a type satisfies either toml::is_integer or toml::is_floating_point.
 	template <typename T>
@@ -813,19 +850,19 @@ TOML_NAMESPACE_START
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a bool or toml::value<bool>.
 	template <typename T>
-	inline constexpr bool is_boolean = std::is_same_v<impl::wrap_node<impl::remove_cvref_t<T>>, value<bool>>;
+	inline constexpr bool is_boolean = std::is_same_v<impl::wrap_node<impl::remove_cvref<T>>, value<bool>>;
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a toml::date or toml::value<date>.
 	template <typename T>
-	inline constexpr bool is_date = std::is_same_v<impl::wrap_node<impl::remove_cvref_t<T>>, value<date>>;
+	inline constexpr bool is_date = std::is_same_v<impl::wrap_node<impl::remove_cvref<T>>, value<date>>;
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a toml::time or toml::value<time>.
 	template <typename T>
-	inline constexpr bool is_time = std::is_same_v<impl::wrap_node<impl::remove_cvref_t<T>>, value<time>>;
+	inline constexpr bool is_time = std::is_same_v<impl::wrap_node<impl::remove_cvref<T>>, value<time>>;
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a toml::date_time or toml::value<date_time>.
 	template <typename T>
-	inline constexpr bool is_date_time = std::is_same_v<impl::wrap_node<impl::remove_cvref_t<T>>, value<date_time>>;
+	inline constexpr bool is_date_time = std::is_same_v<impl::wrap_node<impl::remove_cvref<T>>, value<date_time>>;
 
 	/// \brief	Metafunction for determining if a type satisfies any of toml::is_date, toml::is_time or toml::is_date_time.
 	template <typename T>
@@ -838,12 +875,11 @@ TOML_NAMESPACE_START
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a toml::node (or one of its subclasses).
 	template <typename T>
 	inline constexpr bool is_node =
-		std::is_same_v<toml::node, impl::remove_cvref_t<T>> || std::is_base_of_v<toml::node, impl::remove_cvref_t<T>>;
+		std::is_same_v<toml::node, impl::remove_cvref<T>> || std::is_base_of_v<toml::node, impl::remove_cvref<T>>;
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a toml::node_view.
 	template <typename T>
-	inline constexpr bool is_node_view =
-		impl::is_one_of<impl::remove_cvref_t<T>, node_view<node>, node_view<const node>>;
+	inline constexpr bool is_node_view = impl::is_one_of<impl::remove_cvref<T>, node_view<node>, node_view<const node>>;
 }
 TOML_NAMESPACE_END;
 
@@ -854,17 +890,15 @@ TOML_NAMESPACE_END;
 TOML_IMPL_NAMESPACE_START
 {
 	template <typename T>
-	TOML_NODISCARD
-	TOML_ATTR(const)
-	TOML_ALWAYS_INLINE
+	TOML_CONST_INLINE_GETTER
 	constexpr std::underlying_type_t<T> unwrap_enum(T val) noexcept
 	{
 		return static_cast<std::underlying_type_t<T>>(val);
 	}
 
-	// Q: "why not use the built-in fpclassify?"
+	// Q: "why not use std::fpclassify?"
 	// A: Because it gets broken by -ffast-math and friends
-	enum class fp_class : unsigned
+	enum class TOML_CLOSED_ENUM fp_class : unsigned
 	{
 		ok,
 		neg_inf,
@@ -872,8 +906,7 @@ TOML_IMPL_NAMESPACE_START
 		nan
 	};
 
-	TOML_NODISCARD
-	TOML_ATTR(pure)
+	TOML_PURE_GETTER
 	inline fp_class fpclassify(const double& val) noexcept
 	{
 		static_assert(sizeof(uint64_t) == sizeof(double));
@@ -883,7 +916,7 @@ TOML_IMPL_NAMESPACE_START
 		static constexpr uint64_t mantissa = 0b0000000000001111111111111111111111111111111111111111111111111111ull;
 
 		uint64_t val_bits;
-		memcpy(&val_bits, &val, sizeof(val));
+		std::memcpy(&val_bits, &val, sizeof(val));
 		if ((val_bits & exponent) != exponent)
 			return fp_class::ok;
 		if ((val_bits & mantissa))
@@ -891,11 +924,12 @@ TOML_IMPL_NAMESPACE_START
 		return (val_bits & sign) ? fp_class::neg_inf : fp_class::pos_inf;
 	}
 
-	// Q: "why not use std::find??"
-	// A: Because <algorithm> is _huge_ and std::find would be the only thing I used from it.
+	// Q: "why not use std::find and std::min?"
+	// A: Because <algorithm> is _huge_ and these would be the only things I used from it.
 	//    I don't want to impose such a heavy compile-time burden on users.
+
 	template <typename Iterator, typename T>
-	TOML_NODISCARD
+	TOML_PURE_GETTER
 	inline auto find(Iterator start, Iterator end, const T& needle) noexcept //
 		->decltype(&(*start))
 	{
@@ -903,6 +937,13 @@ TOML_IMPL_NAMESPACE_START
 			if (*start == needle)
 				return &(*start);
 		return nullptr;
+	}
+
+	template <typename T>
+	TOML_PURE_GETTER
+	inline const T& min(const T& a, const T& b) noexcept //
+	{
+		return a < b ? a : b;
 	}
 }
 TOML_IMPL_NAMESPACE_END;

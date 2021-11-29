@@ -5,7 +5,7 @@
 #pragma once
 
 #include "preprocessor.h"
-#if defined(DOXYGEN) || (TOML_PARSER && !TOML_EXCEPTIONS)
+#if defined(DOXYGEN) || (TOML_ENABLE_PARSER && !TOML_EXCEPTIONS)
 
 #include "table.h"
 #include "parse_error.h"
@@ -16,6 +16,15 @@ TOML_NAMESPACE_START
 	TOML_ABI_NAMESPACE_START(noex);
 
 	/// \brief	The result of a parsing operation.
+	///
+	/// \availability <strong>This type only exists when exceptions are disabled.</strong>
+	/// 		 Otherwise parse_result is just an alias for toml::table: \cpp
+	/// #if TOML_EXCEPTIONS
+	///		using parse_result = table;
+	/// #else
+	///		class parse_result { // ...
+	///	#endif
+	/// \ecpp
 	///
 	/// \detail A parse_result is effectively a discriminated union containing either a toml::table
 	/// 		or a toml::parse_error. Most member functions assume a particular one of these two states,
@@ -41,15 +50,6 @@ TOML_NAMESPACE_START
 	/// unconditionally safe; when parsing fails these just return 'empty' values. A ranged-for loop on a failed
 	/// parse_result is also safe since `begin()` and `end()` return the same iterator and will not lead to any
 	/// dereferences and iterations.
-	///
-	/// \availability <strong>This type only exists when exceptions are disabled.</strong>
-	/// 		 Otherwise parse_result is just an alias for toml::table: \cpp
-	/// #if TOML_EXCEPTIONS
-	///		using parse_result = table;
-	/// #else
-	///		class parse_result final { // ...
-	///	#endif
-	/// \ecpp
 	class parse_result
 	{
 	  private:
@@ -269,7 +269,7 @@ TOML_NAMESPACE_START
 		///
 		/// \see toml::node_view
 		TOML_NODISCARD
-		node_view<node> operator[](string_view key) noexcept
+		node_view<node> operator[](std::string_view key) noexcept
 		{
 			return err_ ? node_view<node>{} : table()[key];
 		}
@@ -283,16 +283,16 @@ TOML_NAMESPACE_START
 		///
 		/// \see toml::node_view
 		TOML_NODISCARD
-		node_view<const node> operator[](string_view key) const noexcept
+		node_view<const node> operator[](std::string_view key) const noexcept
 		{
 			return err_ ? node_view<const node>{} : table()[key];
 		}
 
-#if TOML_WINDOWS_COMPAT
+#if TOML_ENABLE_WINDOWS_COMPAT
 
 		/// \brief	Gets a node_view for the selected key-value pair in the wrapped table.
 		///
-		/// \availability This overload is only available when #TOML_WINDOWS_COMPAT is enabled.
+		/// \availability This overload is only available when #TOML_ENABLE_WINDOWS_COMPAT is enabled.
 		///
 		/// \param 	key The key used for the lookup.
 		///
@@ -308,7 +308,7 @@ TOML_NAMESPACE_START
 
 		/// \brief	Gets a node_view for the selected key-value pair in the wrapped table (const overload).
 		///
-		/// \availability This overload is only available when #TOML_WINDOWS_COMPAT is enabled.
+		/// \availability This overload is only available when #TOML_ENABLE_WINDOWS_COMPAT is enabled.
 		///
 		/// \param 	key The key used for the lookup.
 		///
@@ -322,7 +322,7 @@ TOML_NAMESPACE_START
 			return err_ ? node_view<const node>{} : table()[key];
 		}
 
-#endif // TOML_WINDOWS_COMPAT
+#endif // TOML_ENABLE_WINDOWS_COMPAT
 
 		/// \brief	Returns an iterator to the first key-value pair in the wrapped table.
 		/// \remarks Returns a default-constructed 'nothing' iterator if the parsing failed.
@@ -372,11 +372,17 @@ TOML_NAMESPACE_START
 			return err_ ? const_table_iterator{} : table().cend();
 		}
 
+#if TOML_ENABLE_FORMATTERS
+
 		/// \brief Prints the held error or table object out to a text stream.
+		///
+		/// \availability This operator is only available when #TOML_ENABLE_FORMATTERS is enabled.
 		friend std::ostream& operator<<(std::ostream& os, const parse_result& result)
 		{
 			return result.err_ ? (os << result.error()) : (os << result.table());
 		}
+
+#endif
 	};
 
 	TOML_ABI_NAMESPACE_END;
@@ -384,4 +390,4 @@ TOML_NAMESPACE_START
 TOML_NAMESPACE_END;
 
 #include "header_end.h"
-#endif // TOML_PARSER && !TOML_EXCEPTIONS
+#endif // TOML_ENABLE_PARSER && !TOML_EXCEPTIONS

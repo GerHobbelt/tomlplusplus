@@ -5,13 +5,12 @@
 #pragma once
 
 #include "preprocessor.h"
-#if defined(DOXYGEN) || TOML_PARSER
+#if TOML_ENABLE_PARSER
 
 #include "std_except.h"
 #include "source_region.h"
 #include "print_to_stream.h"
 #include "header_start.h"
-TOML_DISABLE_INIT_WARNINGS;
 
 #if defined(DOXYGEN) || !TOML_EXCEPTIONS
 #define TOML_PARSE_ERROR_BASE
@@ -137,4 +136,4 @@ TOML_NAMESPACE_END;
 #undef TOML_PARSE_ERROR_BASE
 
 #include "header_end.h"
-#endif // TOML_PARSER
+#endif // TOML_ENABLE_PARSER

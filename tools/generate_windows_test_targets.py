@@ -53,6 +53,7 @@ def main():
 		<VCProjectVersion>16.0</VCProjectVersion>
 		<ProjectGuid>{{{uuid}}}</ProjectGuid>
 		<WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+		<PreferredToolArchitecture>x64</PreferredToolArchitecture>
 	</PropertyGroup>
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|{platform}'" Label="Configuration">
@@ -80,7 +81,7 @@ def main():
 			<ExceptionHandling>{exceptions}</ExceptionHandling>
 			<PrecompiledHeader>Use</PrecompiledHeader>
 			<PrecompiledHeaderFile>tests.h</PrecompiledHeaderFile>
-			<PreprocessorDefinitions>TOML_UNRELEASED_FEATURES={unreleased_features};%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<PreprocessorDefinitions>TOML_ENABLE_UNRELEASED_FEATURES={unreleased_features};%(PreprocessorDefinitions)</PreprocessorDefinitions>
 			<PreprocessorDefinitions>LEAK_TESTS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 			<PreprocessorDefinitions Condition="'%(ExceptionHandling)'=='false'">_HAS_EXCEPTIONS=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 			<PreprocessorDefinitions Condition="'%(ExceptionHandling)'=='false'">SHOULD_HAVE_EXCEPTIONS=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -119,10 +120,11 @@ def main():
 		<ClCompile Include="..\conformance_burntsushi_valid.cpp" />
 		<ClCompile Include="..\conformance_iarna_invalid.cpp" />
 		<ClCompile Include="..\conformance_iarna_valid.cpp" />
-		<ClCompile Include="..\impl_catch2.cpp">
+		<ClCompile Include="..\formatters.cpp" />
+		<ClCompile Include="..\impl_toml.cpp">
 			<PrecompiledHeader>NotUsing</PrecompiledHeader>
 		</ClCompile>
-		<ClCompile Include="..\impl_toml.cpp">
+		<ClCompile Include="..\main.cpp">
 			<PrecompiledHeader>NotUsing</PrecompiledHeader>
 		</ClCompile>
 		<ClCompile Include="..\manipulating_arrays.cpp" />
@@ -142,7 +144,6 @@ def main():
 		<ClCompile Include="..\tests.cpp">
 			<PrecompiledHeader>Create</PrecompiledHeader>
 		</ClCompile>
-		<ClCompile Include="..\unicode.cpp" />
 		<ClCompile Include="..\user_feedback.cpp" />
 		<ClCompile Include="..\using_iterators.cpp" />
 		<ClCompile Include="..\windows_compat.cpp" />
@@ -151,11 +152,11 @@ def main():
 		<Natvis Include="..\..\toml++.natvis" />
 	</ItemGroup>
 	<ItemGroup>
-		<ClInclude Include="..\catch2.h" />
 		<ClInclude Include="..\leakproof.h" />
+		<ClInclude Include="..\lib_catch2.h" />
+		<ClInclude Include="..\lib_tloptional.h" />
 		<ClInclude Include="..\settings.h" />
 		<ClInclude Include="..\tests.h" />
-		<ClInclude Include="..\tloptional.h" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\cpp.hint" />

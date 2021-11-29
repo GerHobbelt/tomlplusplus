@@ -3,7 +3,6 @@
 //# See https://github.com/marzer/tomlplusplus/blob/master/LICENSE for the full license text.
 // SPDX-License-Identifier: MIT
 #pragma once
-/// \cond
 
 //# {{
 #include "preprocessor.h"
@@ -15,7 +14,7 @@
 #include "print_to_stream.h"
 #include "source_region.h"
 #include "date_time.h"
-#include "default_formatter.h"
+#include "toml_formatter.h"
 #include "value.h"
 #include "array.h"
 #include "table.h"
@@ -35,10 +34,6 @@ TOML_ENABLE_WARNINGS;
 
 TOML_ANON_NAMESPACE_START
 {
-#if !TOML_HEADER_ONLY
-	using namespace toml;
-#endif
-
 	template <typename T>
 	inline constexpr size_t charconv_buffer_length = 0;
 
@@ -76,13 +71,15 @@ TOML_ANON_NAMESPACE_START
 	TOML_INTERNAL_LINKAGE
 	void print_integer_to_stream(std::ostream & stream, T val, value_flags format = {})
 	{
-		using namespace toml;
-
 		if (!val)
 		{
 			stream.put('0');
 			return;
 		}
+
+		static constexpr auto value_flags_mask =
+			value_flags::format_as_binary | value_flags::format_as_octal | value_flags::format_as_hexadecimal;
+		format &= value_flags_mask;
 
 		int base = 10;
 		if (format != value_flags::none && val >= T{})
@@ -138,7 +135,7 @@ TOML_ANON_NAMESPACE_START
 			ss << std::uppercase << std::setbase(base);
 			ss << static_cast<cast_type>(val);
 			const auto str = std::move(ss).str();
-			impl::print_to_stream(str, stream);
+			impl::print_to_stream(stream, str);
 		}
 
 #endif
@@ -148,8 +145,6 @@ TOML_ANON_NAMESPACE_START
 	TOML_INTERNAL_LINKAGE
 	void print_floating_point_to_stream(std::ostream & stream, T val, value_flags format = {})
 	{
-		using namespace toml;
-
 		switch (impl::fpclassify(val))
 		{
 			case impl::fp_class::neg_inf: impl::print_to_stream(stream, "-inf"sv); break;
@@ -204,8 +199,6 @@ TOML_ANON_NAMESPACE_START
 	TOML_INTERNAL_LINKAGE
 	void print_integer_leftpad_zeros(std::ostream & stream, T val, size_t min_digits)
 	{
-		using namespace toml;
-
 #if TOML_INT_CHARCONV
 
 		char buf[charconv_buffer_length<T>];
@@ -325,26 +318,26 @@ TOML_IMPL_NAMESPACE_START
 	TOML_EXTERNAL_LINKAGE
 	void print_to_stream(std::ostream & stream, const toml::date& val)
 	{
-		print_integer_leftpad_zeros(stream, val.year, 4_sz);
+		print_integer_leftpad_zeros(stream, val.year, 4u);
 		stream.put('-');
-		print_integer_leftpad_zeros(stream, val.month, 2_sz);
+		print_integer_leftpad_zeros(stream, val.month, 2u);
 		stream.put('-');
-		print_integer_leftpad_zeros(stream, val.day, 2_sz);
+		print_integer_leftpad_zeros(stream, val.day, 2u);
 	}
 
 	TOML_EXTERNAL_LINKAGE
 	void print_to_stream(std::ostream & stream, const toml::time& val)
 	{
-		print_integer_leftpad_zeros(stream, val.hour, 2_sz);
+		print_integer_leftpad_zeros(stream, val.hour, 2u);
 		stream.put(':');
-		print_integer_leftpad_zeros(stream, val.minute, 2_sz);
+		print_integer_leftpad_zeros(stream, val.minute, 2u);
 		stream.put(':');
-		print_integer_leftpad_zeros(stream, val.second, 2_sz);
+		print_integer_leftpad_zeros(stream, val.second, 2u);
 		if (val.nanosecond && val.nanosecond <= 999999999u)
 		{
 			stream.put('.');
 			auto ns		  = val.nanosecond;
-			size_t digits = 9_sz;
+			size_t digits = 9u;
 			while (ns % 10u == 0u)
 			{
 				ns /= 10u;
@@ -374,13 +367,13 @@ TOML_IMPL_NAMESPACE_START
 		const auto hours = mins / 60;
 		if (hours)
 		{
-			print_integer_leftpad_zeros(stream, static_cast<unsigned int>(hours), 2_sz);
+			print_integer_leftpad_zeros(stream, static_cast<unsigned int>(hours), 2u);
 			mins -= hours * 60;
 		}
 		else
 			print_to_stream(stream, "00"sv);
 		stream.put(':');
-		print_integer_leftpad_zeros(stream, static_cast<unsigned int>(mins), 2_sz);
+		print_integer_leftpad_zeros(stream, static_cast<unsigned int>(mins), 2u);
 	}
 
 	TOML_EXTERNAL_LINKAGE
@@ -414,61 +407,64 @@ TOML_IMPL_NAMESPACE_START
 		}
 	}
 
+#if TOML_ENABLE_FORMATTERS
+
 	TOML_EXTERNAL_LINKAGE
 	void print_to_stream(std::ostream & stream, const array& arr)
 	{
-		stream << default_formatter{ arr };
+		stream << toml_formatter{ arr };
 	}
 
 	TOML_EXTERNAL_LINKAGE
 	void print_to_stream(std::ostream & stream, const table& tbl)
 	{
-		stream << default_formatter{ tbl };
+		stream << toml_formatter{ tbl };
 	}
 
 	TOML_EXTERNAL_LINKAGE
 	void print_to_stream(std::ostream & stream, const value<std::string>& val)
 	{
-		stream << default_formatter{ val };
+		stream << toml_formatter{ val };
 	}
 
 	TOML_EXTERNAL_LINKAGE
 	void print_to_stream(std::ostream & stream, const value<int64_t>& val)
 	{
-		stream << default_formatter{ val };
+		stream << toml_formatter{ val };
 	}
 
 	TOML_EXTERNAL_LINKAGE
 	void print_to_stream(std::ostream & stream, const value<double>& val)
 	{
-		stream << default_formatter{ val };
+		stream << toml_formatter{ val };
 	}
 
 	TOML_EXTERNAL_LINKAGE
 	void print_to_stream(std::ostream & stream, const value<bool>& val)
 	{
-		stream << default_formatter{ val };
+		stream << toml_formatter{ val };
 	}
 
 	TOML_EXTERNAL_LINKAGE
 	void print_to_stream(std::ostream & stream, const value<date>& val)
 	{
-		stream << default_formatter{ val };
+		stream << toml_formatter{ val };
 	}
 
 	TOML_EXTERNAL_LINKAGE
 	void print_to_stream(std::ostream & stream, const value<time>& val)
 	{
-		stream << default_formatter{ val };
+		stream << toml_formatter{ val };
 	}
 
 	TOML_EXTERNAL_LINKAGE
 	void print_to_stream(std::ostream & stream, const value<date_time>& val)
 	{
-		stream << default_formatter{ val };
+		stream << toml_formatter{ val };
 	}
+
+#endif
 }
 TOML_IMPL_NAMESPACE_END;
 
 #include "header_end.h"
-/// \endcond

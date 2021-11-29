@@ -24,35 +24,30 @@ namespace toml // non-abi namespace; this is not an error
 {
 	using namespace std::string_literals;
 	using namespace std::string_view_literals;
-
-	// legacy typedefs
-	using string_char = char;
-	using string	  = std::string;
-	using string_view = std::string_view;
 }
 
-#if TOML_WINDOWS_COMPAT
+#if TOML_ENABLE_WINDOWS_COMPAT
 
 TOML_IMPL_NAMESPACE_START
 {
 	TOML_NODISCARD
 	TOML_API
-	std::string narrow(std::wstring_view) noexcept;
+	std::string narrow(std::wstring_view);
 
 	TOML_NODISCARD
 	TOML_API
-	std::wstring widen(std::string_view) noexcept;
+	std::wstring widen(std::string_view);
 
 #if TOML_HAS_CHAR8
 
 	TOML_NODISCARD
 	TOML_API
-	std::wstring widen(std::u8string_view) noexcept;
+	std::wstring widen(std::u8string_view);
 
 #endif
 }
 TOML_IMPL_NAMESPACE_END;
 
-#endif // TOML_WINDOWS_COMPAT
+#endif // TOML_ENABLE_WINDOWS_COMPAT
 
 /// \endcond

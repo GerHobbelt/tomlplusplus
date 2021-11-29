@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
-#include "forward_declarations.h"
 #include "std_string.h"
+#include "forward_declarations.h"
 #include "header_start.h"
 
 TOML_IMPL_NAMESPACE_START
@@ -80,6 +80,8 @@ TOML_IMPL_NAMESPACE_START
 	TOML_API
 	void print_to_stream(std::ostream&, const source_region&);
 
+#if TOML_ENABLE_FORMATTERS
+
 	TOML_API
 	void print_to_stream(std::ostream&, const array&);
 
@@ -106,6 +108,8 @@ TOML_IMPL_NAMESPACE_START
 
 	TOML_API
 	void print_to_stream(std::ostream&, const value<date_time>&);
+
+#endif
 
 	template <typename T>
 	inline void print_to_stream_with_escapes(std::ostream & stream, const T& str)

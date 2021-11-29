@@ -4,6 +4,9 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
+#include "preprocessor.h"
+#if TOML_ENABLE_FORMATTERS
+
 #include "forward_declarations.h"
 #include "print_to_stream.h"
 #include "header_start.h"
@@ -11,37 +14,54 @@
 
 TOML_IMPL_NAMESPACE_START
 {
+	struct formatter_constants
+	{
+		format_flags mandatory_flags;
+		format_flags ignored_flags;
+
+		std::string_view float_pos_inf;
+		std::string_view float_neg_inf;
+		std::string_view float_nan;
+
+		std::string_view bool_true;
+		std::string_view bool_false;
+	};
+
+	struct formatter_config
+	{
+		format_flags flags;
+		std::string_view indent;
+	};
+
 	class formatter
 	{
 	  private:
-		const toml::node* source_;
-		std::ostream* stream_ = {};
-		format_flags flags_;
-		int indent_;
-		bool naked_newline_;
-#if TOML_PARSER && !TOML_EXCEPTIONS
-		const parse_result* result_ = {};
+		const node* source_;
+#if TOML_ENABLE_PARSER && !TOML_EXCEPTIONS
+		const parse_result* result_;
 #endif
+		const formatter_constants* constants_;
+		formatter_config config_;
+		size_t indent_columns_;
+		format_flags int_format_mask_;
+		std::ostream* stream_; //
+		int indent_;		   // these are set in attach()
+		bool naked_newline_;   //
 
 	  protected:
-		TOML_NODISCARD
-		TOML_ALWAYS_INLINE
-		const toml::node& source() const noexcept
+		TOML_PURE_INLINE_GETTER
+		const node& source() const noexcept
 		{
 			return *source_;
 		}
 
-		TOML_NODISCARD
-		TOML_ALWAYS_INLINE
+		TOML_PURE_INLINE_GETTER
 		std::ostream& stream() const noexcept
 		{
 			return *stream_;
 		}
 
-		static constexpr size_t indent_columns			= 4;
-		static constexpr std::string_view indent_string = "    "sv;
-
-		TOML_NODISCARD
+		TOML_PURE_INLINE_GETTER
 		int indent() const noexcept
 		{
 			return indent_;
@@ -62,39 +82,28 @@ TOML_IMPL_NAMESPACE_START
 			indent_--;
 		}
 
-		TOML_NODISCARD
-		bool quote_dates_and_times() const noexcept
+		TOML_PURE_INLINE_GETTER
+		size_t indent_columns() const noexcept
 		{
-			return !!(flags_ & format_flags::quote_dates_and_times);
+			return indent_columns_;
 		}
 
-		TOML_NODISCARD
+		TOML_PURE_INLINE_GETTER
+		bool indent_array_elements() const noexcept
+		{
+			return !!(config_.flags & format_flags::indent_array_elements);
+		}
+
+		TOML_PURE_INLINE_GETTER
+		bool indent_sub_tables() const noexcept
+		{
+			return !!(config_.flags & format_flags::indent_sub_tables);
+		}
+
+		TOML_PURE_INLINE_GETTER
 		bool literal_strings_allowed() const noexcept
 		{
-			return !!(flags_ & format_flags::allow_literal_strings);
-		}
-
-		TOML_NODISCARD
-		bool multi_line_strings_allowed() const noexcept
-		{
-			return !!(flags_ & format_flags::allow_multi_line_strings);
-		}
-
-		TOML_NODISCARD
-		bool value_format_flags_allowed() const noexcept
-		{
-			return !!(flags_ & format_flags::allow_value_format_flags);
-		}
-
-		TOML_NODISCARD
-		bool naked_newline() const noexcept
-		{
-			return naked_newline_;
-		}
-
-		void clear_naked_newline() noexcept
-		{
-			naked_newline_ = false;
+			return !!(config_.flags & format_flags::allow_literal_strings);
 		}
 
 		TOML_API
@@ -110,7 +119,13 @@ TOML_IMPL_NAMESPACE_START
 		void print_indent();
 
 		TOML_API
-		void print_quoted_string(std::string_view str, bool allow_multi_line = true);
+		void print_unformatted(char);
+
+		TOML_API
+		void print_unformatted(std::string_view);
+
+		TOML_API
+		void print_string(std::string_view str, bool allow_multi_line = true, bool allow_bare = false);
 
 		TOML_API
 		void print(const value<std::string>&);
@@ -138,24 +153,15 @@ TOML_IMPL_NAMESPACE_START
 
 		TOML_NODISCARD
 		TOML_API
-		bool dump_failed_parse_result() noexcept(!TOML_PARSER || TOML_EXCEPTIONS);
-
-		TOML_NODISCARD_CTOR
-		formatter(const toml::node& source, format_flags flags) noexcept //
-			: source_{ &source },
-			  flags_{ flags }
-		{}
-
-#if TOML_PARSER && !TOML_EXCEPTIONS
+		bool dump_failed_parse_result();
 
 		TOML_NODISCARD_CTOR
 		TOML_API
-		formatter(const parse_result& result, format_flags flags) noexcept;
-
-#endif
+		formatter(const node*, const parse_result*, const formatter_constants&, const formatter_config&) noexcept;
 	};
 }
 TOML_IMPL_NAMESPACE_END;
 
 /// \endcond
 #include "header_end.h"
+#endif // TOML_ENABLE_FORMATTERS

@@ -7,7 +7,7 @@
 
 #include "examples.h"
 
-#define TOML_UNRELEASED_FEATURES 1
+#define TOML_ENABLE_UNRELEASED_FEATURES 1
 #include <toml++/toml.h>
 
 using namespace std::string_view_literals;
@@ -20,8 +20,6 @@ using namespace std::string_view_literals;
 
 int main(int argc, const char** argv)
 {
-	examples::init();
-
 	const auto path = argc > 1 ? std::string_view{ argv[1] } : "example.toml"sv;
 	try
 	{

@@ -3,8 +3,8 @@ test_sources = [
 	'conformance_burntsushi_valid.cpp',
 	'conformance_iarna_invalid.cpp',
 	'conformance_iarna_valid.cpp',
+	'formatters.cpp',
 	'impl_toml.cpp',
-	'impl_catch2.cpp',
 	'tests.cpp',
 	'parsing_floats.cpp',
 	'parsing_arrays.cpp',
@@ -16,10 +16,10 @@ test_sources = [
 	'parsing_spec_example.cpp',
 	'parsing_strings.cpp',
 	'parsing_tables.cpp',
+	'main.cpp',
 	'manipulating_arrays.cpp',
 	'manipulating_tables.cpp',
 	'manipulating_values.cpp',
-	'unicode.cpp',
 	'user_feedback.cpp',
 	'using_iterators.cpp',
 	'windows_compat.cpp'
@@ -125,14 +125,11 @@ foreach cpp20 : cpp20_modes
 
 				if unrel
 					test_name = test_name + '_unrel'
-					test_args += '-DTOML_UNRELEASED_FEATURES=1'
+					test_args += '-DTOML_ENABLE_UNRELEASED_FEATURES=1'
 				else
-					test_args += '-DTOML_UNRELEASED_FEATURES=0'
+					test_args += '-DTOML_ENABLE_UNRELEASED_FEATURES=0'
 				endif
 
-				if counter % 6 == 3
-					test_args += '-DTOML_HEADER_ONLY=1'
-				endif
 				if counter % 2 == 1
 					test_args += '-DUSE_SINGLE_HEADER=1'
 				endif

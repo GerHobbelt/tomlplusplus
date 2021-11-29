@@ -5,7 +5,7 @@
 #pragma once
 
 #include "preprocessor.h"
-#if defined(DOXYGEN) || TOML_PARSER
+#if TOML_ENABLE_PARSER
 
 #include "table.h"
 #include "parse_result.h"
@@ -38,7 +38,7 @@ TOML_NAMESPACE_START
 	///				A toml::parse_result.
 	TOML_NODISCARD
 	TOML_API
-	parse_result parse(std::string_view doc, std::string_view source_path = {}) TOML_MAY_THROW;
+	parse_result parse(std::string_view doc, std::string_view source_path = {});
 
 	/// \brief	Parses a TOML document from a string view.
 	///
@@ -63,7 +63,7 @@ TOML_NAMESPACE_START
 	///				A toml::parse_result.
 	TOML_NODISCARD
 	TOML_API
-	parse_result parse(std::string_view doc, std::string && source_path) TOML_MAY_THROW;
+	parse_result parse(std::string_view doc, std::string && source_path);
 
 	/// \brief	Parses a TOML document from a file.
 	///
@@ -82,7 +82,7 @@ TOML_NAMESPACE_START
 	///				A toml::parse_result.
 	TOML_NODISCARD
 	TOML_API
-	parse_result parse_file(std::string_view file_path) TOML_MAY_THROW;
+	parse_result parse_file(std::string_view file_path);
 
 #if TOML_HAS_CHAR8
 
@@ -109,7 +109,7 @@ TOML_NAMESPACE_START
 	///				A toml::parse_result.
 	TOML_NODISCARD
 	TOML_API
-	parse_result parse(std::u8string_view doc, std::string_view source_path = {}) TOML_MAY_THROW;
+	parse_result parse(std::u8string_view doc, std::string_view source_path = {});
 
 	/// \brief	Parses a TOML document from a char8_t string view.
 	///
@@ -134,7 +134,7 @@ TOML_NAMESPACE_START
 	///				A toml::parse_result.
 	TOML_NODISCARD
 	TOML_API
-	parse_result parse(std::u8string_view doc, std::string && source_path) TOML_MAY_THROW;
+	parse_result parse(std::u8string_view doc, std::string && source_path);
 
 	/// \brief	Parses a TOML document from a file.
 	///
@@ -153,13 +153,15 @@ TOML_NAMESPACE_START
 	///				A toml::parse_result.
 	TOML_NODISCARD
 	TOML_API
-	parse_result parse_file(std::u8string_view file_path) TOML_MAY_THROW;
+	parse_result parse_file(std::u8string_view file_path);
 
 #endif // TOML_HAS_CHAR8
 
-#if TOML_WINDOWS_COMPAT
+#if TOML_ENABLE_WINDOWS_COMPAT
 
 	/// \brief	Parses a TOML document from a string view.
+	///
+	/// \availability This overload is only available when #TOML_ENABLE_WINDOWS_COMPAT is enabled.
 	///
 	/// \detail \cpp
 	/// auto tbl = toml::parse("a = 3"sv, L"foo.toml");
@@ -171,8 +173,6 @@ TOML_NAMESPACE_START
 	/// 3
 	/// \eout
 	///
-	/// \availability This overload is only available when #TOML_WINDOWS_COMPAT is enabled.
-	///
 	/// \param 	doc				The TOML document to parse. Must be valid UTF-8.
 	/// \param 	source_path		The path used to initialize each node's `source().path`.
 	/// 						If you don't have a path (or you have no intention of using paths in diagnostics)
@@ -184,9 +184,11 @@ TOML_NAMESPACE_START
 	///				A toml::parse_result.
 	TOML_NODISCARD
 	TOML_API
-	parse_result parse(std::string_view doc, std::wstring_view source_path) TOML_MAY_THROW;
+	parse_result parse(std::string_view doc, std::wstring_view source_path);
 
 	/// \brief	Parses a TOML document from a stream.
+	///
+	/// \availability This overload is only available when #TOML_ENABLE_WINDOWS_COMPAT is enabled.
 	///
 	/// \detail \cpp
 	/// std::stringstream ss;
@@ -201,8 +203,6 @@ TOML_NAMESPACE_START
 	/// 3
 	/// \eout
 	///
-	/// \availability This overload is only available when #TOML_WINDOWS_COMPAT is enabled.
-	///
 	/// \param 	doc				The TOML document to parse. Must be valid UTF-8.
 	/// \param 	source_path		The path used to initialize each node's `source().path`.
 	/// 						If you don't have a path (or you have no intention of using paths in diagnostics)
@@ -214,9 +214,11 @@ TOML_NAMESPACE_START
 	///				A toml::parse_result.
 	TOML_NODISCARD
 	TOML_API
-	parse_result parse(std::istream & doc, std::wstring_view source_path) TOML_MAY_THROW;
+	parse_result parse(std::istream & doc, std::wstring_view source_path);
 
 	/// \brief	Parses a TOML document from a file.
+	///
+	/// \availability This overload is only available when #TOML_ENABLE_WINDOWS_COMPAT is enabled.
 	///
 	/// \detail \cpp
 	/// toml::parse_result get_foo_toml()
@@ -224,8 +226,6 @@ TOML_NAMESPACE_START
 	///		return toml::parse_file(L"foo.toml");
 	/// }
 	/// \ecpp
-	///
-	/// \availability This overload is only available when #TOML_WINDOWS_COMPAT is enabled.
 	///
 	/// \param 	file_path		The TOML document to parse. Must be valid UTF-8.
 	///
@@ -235,13 +235,15 @@ TOML_NAMESPACE_START
 	///				A toml::parse_result.
 	TOML_NODISCARD
 	TOML_API
-	parse_result parse_file(std::wstring_view file_path) TOML_MAY_THROW;
+	parse_result parse_file(std::wstring_view file_path);
 
-#endif // TOML_WINDOWS_COMPAT
+#endif // TOML_ENABLE_WINDOWS_COMPAT
 
-#if TOML_HAS_CHAR8 && TOML_WINDOWS_COMPAT
+#if TOML_HAS_CHAR8 && TOML_ENABLE_WINDOWS_COMPAT
 
 	/// \brief	Parses a TOML document from a char8_t string view.
+	///
+	/// \availability This overload is only available when #TOML_ENABLE_WINDOWS_COMPAT is enabled.
 	///
 	/// \detail \cpp
 	/// auto tbl = toml::parse(u8"a = 3"sv, L"foo.toml");
@@ -252,8 +254,6 @@ TOML_NAMESPACE_START
 	/// 3
 	/// \eout
 	///
-	/// \availability This overload is only available when #TOML_WINDOWS_COMPAT is enabled.
-	///
 	/// \param 	doc				The TOML document to parse. Must be valid UTF-8.
 	/// \param 	source_path		The path used to initialize each node's `source().path`.
 	/// 						If you don't have a path (or you have no intention of using paths in diagnostics)
@@ -265,9 +265,9 @@ TOML_NAMESPACE_START
 	///				A toml::parse_result.
 	TOML_NODISCARD
 	TOML_API
-	parse_result parse(std::u8string_view doc, std::wstring_view source_path) TOML_MAY_THROW;
+	parse_result parse(std::u8string_view doc, std::wstring_view source_path);
 
-#endif // TOML_HAS_CHAR8 && TOML_WINDOWS_COMPAT
+#endif // TOML_HAS_CHAR8 && TOML_ENABLE_WINDOWS_COMPAT
 
 	/// \brief	Parses a TOML document from a stream.
 	///
@@ -295,7 +295,7 @@ TOML_NAMESPACE_START
 	///				A toml::parse_result.
 	TOML_NODISCARD
 	TOML_API
-	parse_result parse(std::istream & doc, std::string_view source_path = {}) TOML_MAY_THROW;
+	parse_result parse(std::istream & doc, std::string_view source_path = {});
 
 	/// \brief	Parses a TOML document from a stream.
 	///
@@ -323,7 +323,7 @@ TOML_NAMESPACE_START
 	///				A toml::parse_result.
 	TOML_NODISCARD
 	TOML_API
-	parse_result parse(std::istream & doc, std::string && source_path) TOML_MAY_THROW;
+	parse_result parse(std::istream & doc, std::string && source_path);
 
 	TOML_ABI_NAMESPACE_END; // TOML_EXCEPTIONS
 
@@ -353,7 +353,7 @@ TOML_NAMESPACE_START
 		/// 			\conditional_return{Without exceptions}
 		///				A toml::parse_result.
 		TOML_NODISCARD
-		inline parse_result operator"" _toml(const char* str, size_t len) TOML_MAY_THROW
+		inline parse_result operator"" _toml(const char* str, size_t len)
 		{
 			return parse(std::string_view{ str, len });
 		}
@@ -382,7 +382,7 @@ TOML_NAMESPACE_START
 		/// 			\conditional_return{Without exceptions}
 		///				A toml::parse_result.
 		TOML_NODISCARD
-		inline parse_result operator"" _toml(const char8_t* str, size_t len) TOML_MAY_THROW
+		inline parse_result operator"" _toml(const char8_t* str, size_t len)
 		{
 			return parse(std::u8string_view{ str, len });
 		}
@@ -395,4 +395,4 @@ TOML_NAMESPACE_START
 TOML_NAMESPACE_END;
 
 #include "header_end.h"
-#endif // TOML_PARSER
+#endif // TOML_ENABLE_PARSER

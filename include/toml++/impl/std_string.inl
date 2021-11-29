@@ -3,7 +3,6 @@
 //# See https://github.com/marzer/tomlplusplus/blob/master/LICENSE for the full license text.
 // SPDX-License-Identifier: MIT
 #pragma once
-/// \cond
 
 //# {{
 #include "preprocessor.h"
@@ -12,10 +11,8 @@
 #endif
 //# }}
 
-#if TOML_WINDOWS_COMPAT
+#if TOML_ENABLE_WINDOWS_COMPAT
 #include "std_string.h"
-#include "header_start.h"
-
 #ifndef _WINDOWS_
 #if TOML_INCLUDE_WINDOWS_H
 #include <Windows.h>
@@ -39,11 +36,12 @@ extern "C" __declspec(dllimport) int __stdcall MultiByteToWideChar(unsigned int 
 
 #endif // TOML_INCLUDE_WINDOWS_H
 #endif // _WINDOWS_
+#include "header_start.h"
 
 TOML_IMPL_NAMESPACE_START
 {
 	TOML_EXTERNAL_LINKAGE
-	std::string narrow(std::wstring_view str) noexcept
+	std::string narrow(std::wstring_view str)
 	{
 		if (str.empty())
 			return {};
@@ -67,7 +65,7 @@ TOML_IMPL_NAMESPACE_START
 	}
 
 	TOML_EXTERNAL_LINKAGE
-	std::wstring widen(std::string_view str) noexcept
+	std::wstring widen(std::string_view str)
 	{
 		if (str.empty())
 			return {};
@@ -85,7 +83,7 @@ TOML_IMPL_NAMESPACE_START
 #if TOML_HAS_CHAR8
 
 	TOML_EXTERNAL_LINKAGE
-	std::wstring widen(std::u8string_view str) noexcept
+	std::wstring widen(std::u8string_view str)
 	{
 		if (str.empty())
 			return {};
@@ -98,5 +96,4 @@ TOML_IMPL_NAMESPACE_START
 TOML_IMPL_NAMESPACE_END;
 
 #include "header_end.h"
-#endif // TOML_WINDOWS_COMPAT
-/// \endcond
+#endif // TOML_ENABLE_WINDOWS_COMPAT

@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
+#include "std_utility.h"
 #include "forward_declarations.h"
 #include "source_region.h"
 #include "header_start.h"
@@ -24,11 +25,10 @@ TOML_NAMESPACE_START
 
 		template <typename T>
 		TOML_NODISCARD
-		decltype(auto) get_value_exact() const noexcept;
+		decltype(auto) get_value_exact() const noexcept(impl::value_retrieval_is_nothrow<T>);
 
 		template <typename T, typename N>
-		TOML_NODISCARD
-		TOML_ATTR(pure)
+		TOML_PURE_GETTER
 		static decltype(auto) do_ref(N&& n) noexcept
 		{
 			using type = impl::unwrap_node<T>;
@@ -59,27 +59,21 @@ TOML_NAMESPACE_START
 		node& operator=(node&&) noexcept;
 
 		template <typename T>
-		TOML_NODISCARD
-		TOML_ALWAYS_INLINE
-		TOML_ATTR(pure)
+		TOML_PURE_INLINE_GETTER
 		impl::wrap_node<T>& ref_cast() & noexcept
 		{
 			return *reinterpret_cast<impl::wrap_node<T>*>(this);
 		}
 
 		template <typename T>
-		TOML_NODISCARD
-		TOML_ALWAYS_INLINE
-		TOML_ATTR(pure)
+		TOML_PURE_INLINE_GETTER
 		impl::wrap_node<T>&& ref_cast() && noexcept
 		{
 			return std::move(*reinterpret_cast<impl::wrap_node<T>*>(this));
 		}
 
 		template <typename T>
-		TOML_NODISCARD
-		TOML_ALWAYS_INLINE
-		TOML_ATTR(pure)
+		TOML_PURE_INLINE_GETTER
 		const impl::wrap_node<T>& ref_cast() const& noexcept
 		{
 			return *reinterpret_cast<const impl::wrap_node<T>*>(this);
@@ -96,128 +90,6 @@ TOML_NAMESPACE_START
 
 		/// \name Type checks
 		/// @{
-
-		/// \brief	Returns the node's type identifier.
-		TOML_NODISCARD
-		virtual node_type type() const noexcept = 0;
-
-		/// \brief	Returns true if this node is a table.
-		TOML_NODISCARD
-		virtual bool is_table() const noexcept
-		{
-			return false;
-		}
-
-		/// \brief	Returns true if this node is an array.
-		TOML_NODISCARD
-		virtual bool is_array() const noexcept
-		{
-			return false;
-		}
-
-		/// \brief	Returns true if this node is a value.
-		TOML_NODISCARD
-		virtual bool is_value() const noexcept
-		{
-			return false;
-		}
-
-		/// \brief	Returns true if this node is a string value.
-		TOML_NODISCARD
-		virtual bool is_string() const noexcept
-		{
-			return false;
-		}
-
-		/// \brief	Returns true if this node is an integer value.
-		TOML_NODISCARD
-		virtual bool is_integer() const noexcept
-		{
-			return false;
-		}
-
-		/// \brief	Returns true if this node is an floating-point value.
-		TOML_NODISCARD
-		virtual bool is_floating_point() const noexcept
-		{
-			return false;
-		}
-
-		/// \brief	Returns true if this node is an integer or floating-point value.
-		TOML_NODISCARD
-		virtual bool is_number() const noexcept
-		{
-			return false;
-		}
-
-		/// \brief	Returns true if this node is a boolean value.
-		TOML_NODISCARD
-		virtual bool is_boolean() const noexcept
-		{
-			return false;
-		}
-
-		/// \brief	Returns true if this node is a local date value.
-		TOML_NODISCARD
-		virtual bool is_date() const noexcept
-		{
-			return false;
-		}
-
-		/// \brief	Returns true if this node is a local time value.
-		TOML_NODISCARD
-		virtual bool is_time() const noexcept
-		{
-			return false;
-		}
-
-		/// \brief	Returns true if this node is a date-time value.
-		TOML_NODISCARD
-		virtual bool is_date_time() const noexcept
-		{
-			return false;
-		}
-
-		/// \brief	Returns true if this node is an array containing only tables.
-		TOML_NODISCARD
-		virtual bool is_array_of_tables() const noexcept
-		{
-			return false;
-		}
-
-		/// \brief	Checks if a node is a specific type.
-		///
-		/// \tparam	T	A TOML node or value type.
-		///
-		/// \returns	Returns true if this node is an instance of the specified type.
-		template <typename T>
-		TOML_NODISCARD
-		TOML_ATTR(pure)
-		bool is() const noexcept
-		{
-			using type = impl::unwrap_node<T>;
-			static_assert((impl::is_native<type> || impl::is_one_of<type, table, array>)&&!impl::is_cvref<type>,
-						  "The template type argument of node::is() must be one of:" TOML_SA_UNWRAPPED_NODE_TYPE_LIST);
-
-			if constexpr (std::is_same_v<type, table>)
-				return is_table();
-			else if constexpr (std::is_same_v<type, array>)
-				return is_array();
-			else if constexpr (std::is_same_v<type, std::string>)
-				return is_string();
-			else if constexpr (std::is_same_v<type, int64_t>)
-				return is_integer();
-			else if constexpr (std::is_same_v<type, double>)
-				return is_floating_point();
-			else if constexpr (std::is_same_v<type, bool>)
-				return is_boolean();
-			else if constexpr (std::is_same_v<type, date>)
-				return is_date();
-			else if constexpr (std::is_same_v<type, time>)
-				return is_time();
-			else if constexpr (std::is_same_v<type, date_time>)
-				return is_date_time();
-		}
 
 		/// \brief	Checks if a node contains values/elements of only one type.
 		///
@@ -250,11 +122,11 @@ TOML_NAMESPACE_START
 		/// \returns	True if the node was homogeneous.
 		///
 		/// \remarks	Always returns `false` for empty tables and arrays.
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		virtual bool is_homogeneous(node_type ntype, node*& first_nonmatch) noexcept = 0;
 
 		/// \brief	Checks if a node contains values/elements of only one type (const overload).
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		virtual bool is_homogeneous(node_type ntype, const node*& first_nonmatch) const noexcept = 0;
 
 		/// \brief	Checks if the node contains values/elements of only one type.
@@ -284,7 +156,7 @@ TOML_NAMESPACE_START
 		/// \returns	True if the node was homogeneous.
 		///
 		/// \remarks	Always returns `false` for empty tables and arrays.
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		virtual bool is_homogeneous(node_type ntype) const noexcept = 0;
 
 		/// \brief	Checks if the node contains values/elements of only one type.
@@ -315,8 +187,7 @@ TOML_NAMESPACE_START
 		///
 		/// \remarks	Always returns `false` for empty tables and arrays.
 		template <typename ElemType = void>
-		TOML_NODISCARD
-		TOML_ATTR(pure)
+		TOML_PURE_GETTER
 		bool is_homogeneous() const noexcept
 		{
 			using type = impl::unwrap_node<ElemType>;
@@ -328,127 +199,167 @@ TOML_NAMESPACE_START
 			return is_homogeneous(impl::node_type_of<type>);
 		}
 
+		/// \brief	Returns the node's type identifier.
+		TOML_PURE_GETTER
+		virtual node_type type() const noexcept = 0;
+
+		/// \brief	Returns true if this node is a table.
+		TOML_PURE_GETTER
+		virtual bool is_table() const noexcept = 0;
+
+		/// \brief	Returns true if this node is an array.
+		TOML_PURE_GETTER
+		virtual bool is_array() const noexcept = 0;
+
+		/// \brief	Returns true if this node is an array containing only tables.
+		TOML_PURE_GETTER
+		virtual bool is_array_of_tables() const noexcept = 0;
+
+		/// \brief	Returns true if this node is a value.
+		TOML_PURE_GETTER
+		virtual bool is_value() const noexcept = 0;
+
+		/// \brief	Returns true if this node is a string value.
+		TOML_PURE_GETTER
+		virtual bool is_string() const noexcept = 0;
+
+		/// \brief	Returns true if this node is an integer value.
+		TOML_PURE_GETTER
+		virtual bool is_integer() const noexcept = 0;
+
+		/// \brief	Returns true if this node is an floating-point value.
+		TOML_PURE_GETTER
+		virtual bool is_floating_point() const noexcept = 0;
+
+		/// \brief	Returns true if this node is an integer or floating-point value.
+		TOML_PURE_GETTER
+		virtual bool is_number() const noexcept = 0;
+
+		/// \brief	Returns true if this node is a boolean value.
+		TOML_PURE_GETTER
+		virtual bool is_boolean() const noexcept = 0;
+
+		/// \brief	Returns true if this node is a local date value.
+		TOML_PURE_GETTER
+		virtual bool is_date() const noexcept = 0;
+
+		/// \brief	Returns true if this node is a local time value.
+		TOML_PURE_GETTER
+		virtual bool is_time() const noexcept = 0;
+
+		/// \brief	Returns true if this node is a date-time value.
+		TOML_PURE_GETTER
+		virtual bool is_date_time() const noexcept = 0;
+
+		/// \brief	Checks if a node is a specific type.
+		///
+		/// \tparam	T	A TOML node or value type.
+		///
+		/// \returns	Returns true if this node is an instance of the specified type.
+		template <typename T>
+		TOML_PURE_INLINE_GETTER
+		bool is() const noexcept
+		{
+			using type = impl::unwrap_node<T>;
+			static_assert((impl::is_native<type> || impl::is_one_of<type, table, array>)&&!impl::is_cvref<type>,
+						  "The template type argument of node::is() must be one of:" TOML_SA_UNWRAPPED_NODE_TYPE_LIST);
+
+			if constexpr (std::is_same_v<type, table>)
+				return is_table();
+			else if constexpr (std::is_same_v<type, array>)
+				return is_array();
+			else if constexpr (std::is_same_v<type, std::string>)
+				return is_string();
+			else if constexpr (std::is_same_v<type, int64_t>)
+				return is_integer();
+			else if constexpr (std::is_same_v<type, double>)
+				return is_floating_point();
+			else if constexpr (std::is_same_v<type, bool>)
+				return is_boolean();
+			else if constexpr (std::is_same_v<type, date>)
+				return is_date();
+			else if constexpr (std::is_same_v<type, time>)
+				return is_time();
+			else if constexpr (std::is_same_v<type, date_time>)
+				return is_date_time();
+		}
+
 		/// @}
 
 		/// \name Type casts
 		/// @{
 
 		/// \brief	Returns a pointer to the node as a toml::table, if it is one.
-		TOML_NODISCARD
-		virtual table* as_table() noexcept
-		{
-			return nullptr;
-		}
+		TOML_PURE_GETTER
+		virtual table* as_table() noexcept = 0;
 
 		/// \brief	Returns a pointer to the node as a toml::array, if it is one.
-		TOML_NODISCARD
-		virtual array* as_array() noexcept
-		{
-			return nullptr;
-		}
+		TOML_PURE_GETTER
+		virtual array* as_array() noexcept = 0;
 
-		/// \brief	Returns a pointer to the node as a toml::value<string>, if it is one.
-		TOML_NODISCARD
-		virtual toml::value<std::string>* as_string() noexcept
-		{
-			return nullptr;
-		}
+		/// \brief	Returns a pointer to the node as a toml::value<std::string>, if it is one.
+		TOML_PURE_GETTER
+		virtual toml::value<std::string>* as_string() noexcept = 0;
 
 		/// \brief	Returns a pointer to the node as a toml::value<int64_t>, if it is one.
-		TOML_NODISCARD
-		virtual toml::value<int64_t>* as_integer() noexcept
-		{
-			return nullptr;
-		}
+		TOML_PURE_GETTER
+		virtual toml::value<int64_t>* as_integer() noexcept = 0;
 
 		/// \brief	Returns a pointer to the node as a toml::value<double>, if it is one.
-		TOML_NODISCARD
-		virtual toml::value<double>* as_floating_point() noexcept
-		{
-			return nullptr;
-		}
+		TOML_PURE_GETTER
+		virtual toml::value<double>* as_floating_point() noexcept = 0;
 
 		/// \brief	Returns a pointer to the node as a toml::value<bool>, if it is one.
-		TOML_NODISCARD
-		virtual toml::value<bool>* as_boolean() noexcept
-		{
-			return nullptr;
-		}
+		TOML_PURE_GETTER
+		virtual toml::value<bool>* as_boolean() noexcept = 0;
 
-		/// \brief	Returns a pointer to the node as a toml::value<date>, if it is one.
-		TOML_NODISCARD
-		virtual toml::value<date>* as_date() noexcept
-		{
-			return nullptr;
-		}
+		/// \brief	Returns a pointer to the node as a toml::value<toml::date>, if it is one.
+		TOML_PURE_GETTER
+		virtual toml::value<date>* as_date() noexcept = 0;
 
-		/// \brief	Returns a pointer to the node as a toml::value<time>, if it is one.
-		TOML_NODISCARD
-		virtual toml::value<time>* as_time() noexcept
-		{
-			return nullptr;
-		}
+		/// \brief	Returns a pointer to the node as a toml::value<toml::time>, if it is one.
+		TOML_PURE_GETTER
+		virtual toml::value<time>* as_time() noexcept = 0;
 
-		/// \brief	Returns a pointer to the node as a toml::value<date_time>, if it is one.
-		TOML_NODISCARD
-		virtual toml::value<date_time>* as_date_time() noexcept
-		{
-			return nullptr;
-		}
+		/// \brief	Returns a pointer to the node as a toml::value<toml::date_time>, if it is one.
+		TOML_PURE_GETTER
+		virtual toml::value<date_time>* as_date_time() noexcept = 0;
 
-		TOML_NODISCARD
-		virtual const table* as_table() const noexcept
-		{
-			return nullptr;
-		}
+		/// \brief	Returns a const-qualified pointer to the node as a toml::table, if it is one.
+		TOML_PURE_GETTER
+		virtual const table* as_table() const noexcept = 0;
 
-		TOML_NODISCARD
-		virtual const array* as_array() const noexcept
-		{
-			return nullptr;
-		}
+		/// \brief	Returns a const-qualified pointer to the node as a toml::array, if it is one.
+		TOML_PURE_GETTER
+		virtual const array* as_array() const noexcept = 0;
 
-		TOML_NODISCARD
-		virtual const toml::value<std::string>* as_string() const noexcept
-		{
-			return nullptr;
-		}
+		/// \brief	Returns a const-qualified pointer to the node as a toml::value<std::string>, if it is one.
+		TOML_PURE_GETTER
+		virtual const toml::value<std::string>* as_string() const noexcept = 0;
 
-		TOML_NODISCARD
-		virtual const toml::value<int64_t>* as_integer() const noexcept
-		{
-			return nullptr;
-		}
+		/// \brief	Returns a const-qualified pointer to the node as a toml::value<int64_t>, if it is one.
+		TOML_PURE_GETTER
+		virtual const toml::value<int64_t>* as_integer() const noexcept = 0;
 
-		TOML_NODISCARD
-		virtual const toml::value<double>* as_floating_point() const noexcept
-		{
-			return nullptr;
-		}
+		/// \brief	Returns a const-qualified pointer to the node as a toml::value<double>, if it is one.
+		TOML_PURE_GETTER
+		virtual const toml::value<double>* as_floating_point() const noexcept = 0;
 
-		TOML_NODISCARD
-		virtual const toml::value<bool>* as_boolean() const noexcept
-		{
-			return nullptr;
-		}
+		/// \brief	Returns a const-qualified pointer to the node as a toml::value<bool>, if it is one.
+		TOML_PURE_GETTER
+		virtual const toml::value<bool>* as_boolean() const noexcept = 0;
 
-		TOML_NODISCARD
-		virtual const toml::value<date>* as_date() const noexcept
-		{
-			return nullptr;
-		}
+		/// \brief	Returns a const-qualified pointer to the node as a toml::value<toml::date>, if it is one.
+		TOML_PURE_GETTER
+		virtual const toml::value<date>* as_date() const noexcept = 0;
 
-		TOML_NODISCARD
-		virtual const toml::value<time>* as_time() const noexcept
-		{
-			return nullptr;
-		}
+		/// \brief	Returns a const-qualified pointer to the node as a toml::value<toml::time>, if it is one.
+		TOML_PURE_GETTER
+		virtual const toml::value<time>* as_time() const noexcept = 0;
 
-		TOML_NODISCARD
-		virtual const toml::value<date_time>* as_date_time() const noexcept
-		{
-			return nullptr;
-		}
+		/// \brief	Returns a const-qualified pointer to the node as a toml::value<toml::date_time>, if it is one.
+		TOML_PURE_GETTER
+		virtual const toml::value<date_time>* as_date_time() const noexcept = 0;
 
 		/// \brief	Gets a pointer to the node as a more specific node type.
 		///
@@ -472,8 +383,7 @@ TOML_NAMESPACE_START
 		///
 		/// \returns	A pointer to the node as the given type, or nullptr if it was a different type.
 		template <typename T>
-		TOML_NODISCARD
-		TOML_ATTR(pure)
+		TOML_PURE_INLINE_GETTER
 		impl::wrap_node<T>* as() noexcept
 		{
 			using type = impl::unwrap_node<T>;
@@ -502,8 +412,7 @@ TOML_NAMESPACE_START
 
 		/// \brief	Gets a pointer to the node as a more specific node type (const overload).
 		template <typename T>
-		TOML_NODISCARD
-		TOML_ATTR(pure)
+		TOML_PURE_INLINE_GETTER
 		const impl::wrap_node<T>* as() const noexcept
 		{
 			using type = impl::unwrap_node<T>;
@@ -549,7 +458,7 @@ TOML_NAMESPACE_START
 		/// \see node::value()
 		template <typename T>
 		TOML_NODISCARD
-		optional<T> value_exact() const noexcept;
+		optional<T> value_exact() const noexcept(impl::value_retrieval_is_nothrow<T>);
 
 		/// \brief	Gets the value contained by this node.
 		///
@@ -679,7 +588,7 @@ TOML_NAMESPACE_START
 		/// \see node::value_exact()
 		template <typename T>
 		TOML_NODISCARD
-		optional<T> value() const noexcept;
+		optional<T> value() const noexcept(impl::value_retrieval_is_nothrow<T>);
 
 		/// \brief	Gets the raw value contained by this node, or a default.
 		///
@@ -700,7 +609,7 @@ TOML_NAMESPACE_START
 		///		- node::value_exact()
 		template <typename T>
 		TOML_NODISCARD
-		auto value_or(T&& default_value) const noexcept;
+		auto value_or(T&& default_value) const noexcept(impl::value_retrieval_is_nothrow<T>);
 
 		//# template <typename T>
 		//# TOML_NODISCARD
@@ -730,8 +639,7 @@ TOML_NAMESPACE_START
 		///
 		/// \returns	A reference to the underlying data.
 		template <typename T>
-		TOML_NODISCARD
-		TOML_ATTR(pure)
+		TOML_PURE_GETTER
 		impl::unwrap_node<T>& ref() & noexcept
 		{
 			return do_ref<T>(*this);
@@ -739,8 +647,7 @@ TOML_NAMESPACE_START
 
 		/// \brief	Gets a raw reference to a value node's underlying data (rvalue overload).
 		template <typename T>
-		TOML_NODISCARD
-		TOML_ATTR(pure)
+		TOML_PURE_GETTER
 		impl::unwrap_node<T>&& ref() && noexcept
 		{
 			return do_ref<T>(std::move(*this));
@@ -748,8 +655,7 @@ TOML_NAMESPACE_START
 
 		/// \brief	Gets a raw reference to a value node's underlying data (const lvalue overload).
 		template <typename T>
-		TOML_NODISCARD
-		TOML_ATTR(pure)
+		TOML_PURE_GETTER
 		const impl::unwrap_node<T>& ref() const& noexcept
 		{
 			return do_ref<T>(*this);
@@ -761,7 +667,7 @@ TOML_NAMESPACE_START
 		/// @{
 
 		/// \brief	Returns the source region responsible for generating this node during parsing.
-		TOML_NODISCARD
+		TOML_PURE_INLINE_GETTER
 		const source_region& source() const noexcept
 		{
 			return source_;
