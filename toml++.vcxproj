@@ -19,13 +19,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -38,6 +38,7 @@
     <ClInclude Include="include\toml++\impl\array.h" />
     <ClInclude Include="include\toml++\impl\array.inl" />
     <ClInclude Include="include\toml++\impl\date_time.h" />
+    <ClInclude Include="include\toml++\impl\key.h" />
     <ClInclude Include="include\toml++\impl\simd.h" />
     <ClInclude Include="include\toml++\impl\std_utility.h" />
     <ClInclude Include="include\toml++\impl\toml_formatter.h" />

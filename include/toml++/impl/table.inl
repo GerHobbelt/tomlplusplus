@@ -20,6 +20,17 @@ TOML_NAMESPACE_START
 	TOML_EXTERNAL_LINKAGE
 	table::table(const impl::table_init_pair* b, const impl::table_init_pair* e)
 	{
+#if TOML_LIFETIME_HOOKS
+		TOML_TABLE_CREATED;
+#endif
+
+		TOML_ASSERT_ASSUME(b);
+		TOML_ASSERT_ASSUME(e);
+		TOML_ASSERT_ASSUME(b <= e);
+
+		if TOML_UNLIKELY(b == e)
+			return;
+
 		for (; b != e; b++)
 		{
 			if (!b->value) // empty node_views
@@ -27,10 +38,6 @@ TOML_NAMESPACE_START
 
 			map_.insert_or_assign(std::move(b->key), std::move(b->value));
 		}
-
-#if TOML_LIFETIME_HOOKS
-		TOML_TABLE_CREATED;
-#endif
 	}
 
 	TOML_EXTERNAL_LINKAGE
@@ -38,8 +45,8 @@ TOML_NAMESPACE_START
 		: node(other),
 		  inline_{ other.inline_ }
 	{
-		for (auto&& [k, v] : other)
-			map_.emplace_hint(map_.end(), k, impl::make_node(v));
+		for (auto&& [k, v] : other.map_)
+			map_.emplace_hint(map_.end(), k, impl::make_node(*v));
 
 #if TOML_LIFETIME_HOOKS
 		TOML_TABLE_CREATED;
@@ -64,8 +71,8 @@ TOML_NAMESPACE_START
 		{
 			node::operator=(rhs);
 			map_.clear();
-			for (auto&& [k, v] : rhs)
-				map_.emplace_hint(map_.end(), k, impl::make_node(v));
+			for (auto&& [k, v] : rhs.map_)
+				map_.emplace_hint(map_.end(), k, impl::make_node(*v));
 			inline_ = rhs.inline_;
 		}
 		return *this;
@@ -92,9 +99,9 @@ TOML_NAMESPACE_START
 		if (ntype == node_type::none)
 			ntype = map_.cbegin()->second->type();
 
-		for (const auto& [k, v] : map_)
+		for (auto&& [k, v] : map_)
 		{
-			(void)k;
+			TOML_UNUSED(k);
 			if (v->type() != ntype)
 				return false;
 		}
@@ -114,7 +121,7 @@ TOML_NAMESPACE_START
 			ntype = map_.cbegin()->second->type();
 		for (const auto& [k, v] : map_)
 		{
-			(void)k;
+			TOML_UNUSED(k);
 			if (v->type() != ntype)
 			{
 				first_nonmatch = v.get();
@@ -158,11 +165,100 @@ TOML_NAMESPACE_START
 
 #else
 
-		TOML_ASSERT(n && "key not found in table!");
+		TOML_ASSERT_ASSUME(n && "key not found in table!");
 
 #endif
 
 		return *n;
+	}
+
+	TOML_EXTERNAL_LINKAGE
+	table::map_iterator table::get_lower_bound(std::string_view key) noexcept
+	{
+		return map_.lower_bound(key);
+	}
+
+	TOML_EXTERNAL_LINKAGE
+	table::iterator table::find(std::string_view key) noexcept
+	{
+		return iterator{ map_.find(key) };
+	}
+
+	TOML_EXTERNAL_LINKAGE
+	table::const_iterator table::find(std::string_view key) const noexcept
+	{
+		return const_iterator{ map_.find(key) };
+	}
+
+	TOML_EXTERNAL_LINKAGE
+	table::map_iterator table::erase(const_map_iterator pos) noexcept
+	{
+		return map_.erase(pos);
+	}
+
+	TOML_EXTERNAL_LINKAGE
+	table::map_iterator table::erase(const_map_iterator begin, const_map_iterator end) noexcept
+	{
+		return map_.erase(begin, end);
+	}
+
+	TOML_EXTERNAL_LINKAGE
+	size_t table::erase(std::string_view key) noexcept
+	{
+		if (auto it = map_.find(key); it != map_.end())
+		{
+			map_.erase(it);
+			return size_t{ 1 };
+		}
+		return size_t{};
+	}
+
+	TOML_EXTERNAL_LINKAGE
+	table& table::prune(bool recursive)& noexcept
+	{
+		if (map_.empty())
+			return *this;
+
+		for (auto it = map_.begin(); it != map_.end();)
+		{
+			if (auto arr = it->second->as_array())
+			{
+				if (recursive)
+					arr->prune(true);
+
+				if (arr->empty())
+				{
+					it = map_.erase(it);
+					continue;
+				}
+			}
+			else if (auto tbl = it->second->as_table())
+			{
+				if (recursive)
+					tbl->prune(true);
+
+				if (tbl->empty())
+				{
+					it = map_.erase(it);
+					continue;
+				}
+			}
+			it++;
+		}
+
+		return *this;
+	}
+
+	TOML_EXTERNAL_LINKAGE
+	void table::clear() noexcept
+	{
+		map_.clear();
+	}
+
+	TOML_EXTERNAL_LINKAGE
+	table::map_iterator table::insert_with_hint(const_iterator hint, key && k, impl::node_ptr && v)
+	{
+		return map_.emplace_hint(const_map_iterator{ hint }, std::move(k), std::move(v));
 	}
 
 	TOML_EXTERNAL_LINKAGE

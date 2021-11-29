@@ -101,7 +101,7 @@
 
 	#define TOML_ENABLE_WARNINGS				TOML_POP_WARNINGS
 
-	#define TOML_ASSUME(cond)					__builtin_assume(cond)
+	#define TOML_ASSUME(expr)					__builtin_assume(expr)
 	#define TOML_UNREACHABLE					__builtin_unreachable()
 	#define TOML_ATTR(...)						__attribute__((__VA_ARGS__))
 	#if defined(_MSC_VER) // msvc compat mode
@@ -235,7 +235,7 @@
 		#define TOML_ALWAYS_INLINE				__forceinline
 	#endif
 	#define TOML_NEVER_INLINE					__declspec(noinline)
-	#define TOML_ASSUME(cond)					__assume(cond)
+	#define TOML_ASSUME(expr)					__assume(expr)
 	#define TOML_UNREACHABLE					__assume(0)
 	#define TOML_ABSTRACT_BASE					__declspec(novtable)
 	#define TOML_EMPTY_BASES					__declspec(empty_bases)
@@ -486,14 +486,6 @@
 	#error toml++ requires C++17 or higher. For a TOML library supporting pre-C++11 see https://github.com/ToruNiina/Boost.toml
 #elif TOML_CPP_VERSION < 201703L
 	#error toml++ requires C++17 or higher. For a TOML library supporting C++11 see https://github.com/ToruNiina/toml11
-#elif TOML_CPP_VERSION >= 202600L
-	#define TOML_CPP 26
-#elif TOML_CPP_VERSION >= 202300L
-	#define TOML_CPP 23
-#elif TOML_CPP_VERSION >= 202002L
-	#define TOML_CPP 20
-#elif TOML_CPP_VERSION >= 201703L
-	#define TOML_CPP 17
 #endif
 #undef TOML_CPP_VERSION
 
@@ -588,11 +580,11 @@
 #endif
 
 #ifndef TOML_ASSUME
-	#define TOML_ASSUME(cond)	(void)0
+	#define TOML_ASSUME(expr)	static_assert(true)
 #endif
 
 #ifndef TOML_UNREACHABLE
-	#define TOML_UNREACHABLE	TOML_ASSERT(false)
+	#define TOML_UNREACHABLE	TOML_ASSUME(false)
 #endif
 
 #ifndef TOML_FLAGS_ENUM
@@ -743,6 +735,8 @@
 	#define TOML_CONST_INLINE_GETTER	TOML_NODISCARD	TOML_ALWAYS_INLINE
 #endif
 
+#define TOML_UNUSED(...) static_cast<void>(__VA_ARGS__)
+
 //======================================================================================================================
 // SFINAE
 //======================================================================================================================
@@ -807,24 +801,24 @@
 
 #define TOML_LIB_SINGLE_HEADER 0
 
-#define TOML_MAKE_VERSION(maj, min, rev)											\
-		((maj) * 1000 + (min) * 25 + (rev))
+#define TOML_MAKE_VERSION(major, minor, patch)											\
+		((major) * 10000 + (minor) * 100 + (patch))
 
 #if TOML_ENABLE_UNRELEASED_FEATURES
-	#define TOML_LANG_EFFECTIVE_VERSION												\
+	#define TOML_LANG_EFFECTIVE_VERSION													\
 		TOML_MAKE_VERSION(TOML_LANG_MAJOR, TOML_LANG_MINOR, TOML_LANG_PATCH+1)
 #else
-	#define TOML_LANG_EFFECTIVE_VERSION												\
+	#define TOML_LANG_EFFECTIVE_VERSION													\
 		TOML_MAKE_VERSION(TOML_LANG_MAJOR, TOML_LANG_MINOR, TOML_LANG_PATCH)
 #endif
 
-#define TOML_LANG_HIGHER_THAN(maj, min, rev)										\
-		(TOML_LANG_EFFECTIVE_VERSION > TOML_MAKE_VERSION(maj, min, rev))
+#define TOML_LANG_HIGHER_THAN(major, minor, patch)										\
+		(TOML_LANG_EFFECTIVE_VERSION > TOML_MAKE_VERSION(major, minor, patch))
 
-#define TOML_LANG_AT_LEAST(maj, min, rev)											\
-		(TOML_LANG_EFFECTIVE_VERSION >= TOML_MAKE_VERSION(maj, min, rev))
+#define TOML_LANG_AT_LEAST(major, minor, patch)											\
+		(TOML_LANG_EFFECTIVE_VERSION >= TOML_MAKE_VERSION(major, minor, patch))
 
-#define TOML_LANG_UNRELEASED														\
+#define TOML_LANG_UNRELEASED															\
 		TOML_LANG_HIGHER_THAN(TOML_LANG_MAJOR, TOML_LANG_MINOR, TOML_LANG_PATCH)
 
 #ifndef TOML_ABI_NAMESPACES
@@ -871,18 +865,23 @@
 //# ASSERT
 //#====================================================================================================================
 
-TOML_DISABLE_WARNINGS;
-#ifndef TOML_ASSERT
-	#ifdef NDEBUG
-		#define TOML_ASSERT(expr)	static_cast<void>(0)
-	#else
-		#ifndef assert
-			#include <cassert>
-		#endif
-		#define TOML_ASSERT(expr)	assert(expr)
-	#endif
+#ifdef NDEBUG
+	#undef TOML_ASSERT
+	#define TOML_ASSERT(expr)	static_assert(true)
 #endif
-TOML_ENABLE_WARNINGS;
+#ifndef TOML_ASSERT
+	#ifndef assert
+		TOML_DISABLE_WARNINGS;
+		#include <cassert>
+		TOML_ENABLE_WARNINGS;
+	#endif
+	#define TOML_ASSERT(expr)	assert(expr)
+#endif
+#ifdef NDEBUG
+	#define TOML_ASSERT_ASSUME(expr)	TOML_ASSUME(expr)
+#else
+	#define TOML_ASSERT_ASSUME(expr)	TOML_ASSERT(expr)
+#endif
 
 //#====================================================================================================================
 //# STATIC ASSERT MESSAGE FORMATTING

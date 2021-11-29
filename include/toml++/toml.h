@@ -34,6 +34,7 @@ TOML_DISABLE_SUGGEST_ATTR_WARNINGS;
 #include "impl/value.h"
 #include "impl/make_node.h"
 #include "impl/array.h"
+#include "impl/key.h"
 #include "impl/table.h"
 #include "impl/utf8.h"
 #include "impl/parse_error.h"
@@ -76,6 +77,7 @@ TOML_POP_WARNINGS;
 #undef TOML_ANON_NAMESPACE_START
 #undef TOML_ARM
 #undef TOML_ASSERT
+#undef TOML_ASSERT_ASSUME
 #undef TOML_ASSUME
 #undef TOML_ASYMMETRICAL_EQUALITY_OPS
 #undef TOML_ATTR
@@ -88,7 +90,6 @@ TOML_POP_WARNINGS;
 #undef TOML_CONST_GETTER
 #undef TOML_CONST_INLINE_GETTER
 #undef TOML_CONSTRAINED_TEMPLATE
-#undef TOML_CPP
 #undef TOML_DISABLE_ARITHMETIC_WARNINGS
 #undef TOML_DISABLE_CODE_ANALYSIS_WARNINGS
 #undef TOML_DISABLE_SPAM_WARNINGS
@@ -171,6 +172,7 @@ TOML_POP_WARNINGS;
 #undef TOML_UINT128
 #undef TOML_UNLIKELY
 #undef TOML_UNREACHABLE
+#undef TOML_UNUSED
 #endif
 
 #endif // TOMLPLUSPLUS_H
