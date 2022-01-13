@@ -46,17 +46,98 @@ fruit = []
 	static constexpr auto bool_wrong_case_false = R"(b = FALSE)"sv;
 	static constexpr auto bool_wrong_case_true	= R"(a = TRUE)"sv;
 
-	static constexpr auto datetime_impossible_date	   = R"(d = 2006-01-50T00:00:00Z)"sv;
-	static constexpr auto datetime_no_leads_with_milli = R"(with-milli = 1987-07-5T17:45:00.12Z)"sv;
-	static constexpr auto datetime_no_leads			   = R"(no-leads = 1987-7-05T17:45:00Z)"sv;
-	static constexpr auto datetime_no_t				   = R"(no-t = 1987-07-0517:45:00Z)"sv;
-	static constexpr auto datetime_trailing_t		   = R"(d = 2006-01-30T)"sv;
+	static constexpr auto control_bare_cr =
+		"# The following line contains a single carriage return control character\r\n"
+		"\r"sv;
+	static constexpr auto control_bare_formfeed		= "bare-formfeed = \f"sv;
+	static constexpr auto control_bare_null			= "bare-null = \"some value\" \x00"sv;
+	static constexpr auto control_bare_vertical_tab = "bare-vertical-tab = \v"sv;
+	static constexpr auto control_comment_cr		= "comment-cr = \"Carriage return in comment\" # \ra=1"sv;
+	static constexpr auto control_comment_del		= "comment-del = \"0x7f\" # \x7F"sv;
+	static constexpr auto control_comment_lf		= "comment-lf = \"ctrl-P\" # \x10"sv;
+	static constexpr auto control_comment_null		= "comment-null = \"null\" # \x00"sv;
+	static constexpr auto control_comment_us		= "comment-us = \"ctrl-_\" # \x1F"sv;
+	static constexpr auto control_multi_del			= "multi-del = \"\"\"null\x7F\"\"\""sv;
+	static constexpr auto control_multi_lf			= "multi-lf = \"\"\"null\x10\"\"\""sv;
+	static constexpr auto control_multi_null		= "multi-null = \"\"\"null\x00\"\"\""sv;
+	static constexpr auto control_multi_us			= "multi-us = \"\"\"null\x1F\"\"\""sv;
+	static constexpr auto control_rawmulti_del		= "rawmulti-del = '''null\x7F'''"sv;
+	static constexpr auto control_rawmulti_lf		= "rawmulti-lf = '''null\x10'''"sv;
+	static constexpr auto control_rawmulti_null		= "rawmulti-null = '''null\x00'''"sv;
+	static constexpr auto control_rawmulti_us		= "rawmulti-us = '''null\x1F'''"sv;
+	static constexpr auto control_rawstring_del		= "rawstring-del = 'null\x7F'"sv;
+	static constexpr auto control_rawstring_lf		= "rawstring-lf = 'null\x10'"sv;
+	static constexpr auto control_rawstring_null	= "rawstring-null = 'null\x00'"sv;
+	static constexpr auto control_rawstring_us		= "rawstring-us = 'null\x1F'"sv;
+	static constexpr auto control_string_bs			= "string-bs = \"backspace\x08\""sv;
+	static constexpr auto control_string_del		= "string-del = \"null\x7F\""sv;
+	static constexpr auto control_string_lf			= "string-lf = \"null\x10\""sv;
+	static constexpr auto control_string_null		= "string-null = \"null\x00\""sv;
+	static constexpr auto control_string_us			= "string-us = \"null\x1F\""sv;
+
+	static constexpr auto datetime_hour_over   = R"(# time-hour       = 2DIGIT  ; 00-23
+d = 2006-01-01T24:00:00-00:00)"sv;
+	static constexpr auto datetime_mday_over   = R"(# date-mday       = 2DIGIT  ; 01-28, 01-29, 01-30, 01-31 based on
+#                           ; month/year
+d = 2006-01-32T00:00:00-00:00)"sv;
+	static constexpr auto datetime_mday_under  = R"(# date-mday       = 2DIGIT  ; 01-28, 01-29, 01-30, 01-31 based on
+#                           ; month/year
+d = 2006-01-00T00:00:00-00:00)"sv;
+	static constexpr auto datetime_minute_over = R"(# time-minute     = 2DIGIT  ; 00-59
+d = 2006-01-01T00:60:00-00:00)"sv;
+	static constexpr auto datetime_month_over  = R"(# date-month      = 2DIGIT  ; 01-12
+d = 2006-13-01T00:00:00-00:00)"sv;
+	static constexpr auto datetime_month_under = R"(# date-month      = 2DIGIT  ; 01-12
+d = 2007-00-01T00:00:00-00:00)"sv;
+	static constexpr auto datetime_no_leads_with_milli = R"(# Day "5" instead of "05"; the leading zero is required.
+with-milli = 1987-07-5T17:45:00.12Z)"sv;
+	static constexpr auto datetime_no_leads			   = R"(# Month "7" instead of "07"; the leading zero is required.
+no-leads = 1987-7-05T17:45:00Z)"sv;
+	static constexpr auto datetime_no_t				   = R"(# No "t" or "T" between the date and time.
+no-t = 1987-07-0517:45:00Z)"sv;
+	static constexpr auto datetime_second_over =
+		R"(# time-second     = 2DIGIT  ; 00-58, 00-59, 00-60 based on leap second
+#                           ; rules
+d = 2006-01-01T00:00:61-00:00)"sv;
+	static constexpr auto datetime_time_no_leads_2 = R"(# Leading 0 is always required.
+d = 01:32:0)"sv;
+	static constexpr auto datetime_time_no_leads   = R"(# Leading 0 is always required.
+d = 1:32:00)"sv;
+	static constexpr auto datetime_trailing_t	   = R"(# Date cannot end with trailing T
+d = 2006-01-30T)"sv;
 
 #if !TOML_LANG_UNRELEASED
 
-	static constexpr auto datetime_no_secs = R"(no-secs = 1987-07-05T17:45Z)"sv;
+	static constexpr auto datetime_no_secs = R"(# No seconds in time.
+no-secs = 1987-07-05T17:45Z)"sv;
 
 #endif // !TOML_LANG_UNRELEASED
+
+	static constexpr auto encoding_bad_utf8_at_end =
+		"\x23\x20\x54\x68\x65\x72\x65\x20\x69\x73\x20\x61\x20\x30\x78\x64\x61\x20\x61\x74\x20\x61\x66\x74\x65"
+		"\x72\x20\x74\x68\x65\x20\x71\x75\x6F\x74\x65\x73\x2C\x20\x61\x6E\x64\x20\x6E\x6F\x20\x45\x4F\x4C\x20"
+		"\x61\x74\x20\x74\x68\x65\x20\x65\x6E\x64\x20\x6F\x66\x20\x74\x68\x65\x20\x66\x69\x6C\x65\x2E\x0A\x23"
+		"\x0A\x23\x20\x54\x68\x69\x73\x20\x69\x73\x20\x61\x20\x62\x69\x74\x20\x6F\x66\x20\x61\x6E\x20\x65\x64"
+		"\x67\x65\x20\x63\x61\x73\x65\x3A\x20\x54\x68\x69\x73\x20\x69\x6E\x64\x69\x63\x61\x74\x65\x73\x20\x74"
+		"\x68\x65\x72\x65\x20\x73\x68\x6F\x75\x6C\x64\x20\x62\x65\x20\x74\x77\x6F\x20\x62\x79\x74\x65\x73\x0A"
+		"\x23\x20\x28\x30\x62\x31\x31\x30\x31\x5F\x31\x30\x31\x30\x29\x20\x62\x75\x74\x20\x74\x68\x65\x72\x65"
+		"\x20\x69\x73\x20\x6E\x6F\x20\x62\x79\x74\x65\x20\x74\x6F\x20\x66\x6F\x6C\x6C\x6F\x77\x20\x62\x65\x63"
+		"\x61\x75\x73\x65\x20\x69\x74\x27\x73\x20\x74\x68\x65\x20\x65\x6E\x64\x20\x6F\x66\x20\x74\x68\x65\x20"
+		"\x66\x69\x6C\x65\x2E\x0A\x78\x20\x3D\x20\x22\x22\x22\x22\x22\x22\xDA"sv;
+	static constexpr auto encoding_bad_utf8_in_comment = "\x23\x20\xC3\x0A"sv;
+	static constexpr auto encoding_bad_utf8_in_string =
+		"\x23\x20\x54\x68\x65\x20\x66\x6F\x6C\x6C\x6F\x77\x69\x6E\x67\x20\x6C\x69\x6E\x65\x20\x63\x6F\x6E\x74"
+		"\x61\x69\x6E\x73\x20\x61\x6E\x20\x69\x6E\x76\x61\x6C\x69\x64\x20\x55\x54\x46\x2D\x38\x20\x73\x65\x71"
+		"\x75\x65\x6E\x63\x65\x2E\x0A\x62\x61\x64\x20\x3D\x20\x22\xC3\x22\x0A"sv;
+	static constexpr auto encoding_bom_not_at_start_1 =
+		"\x62\x6F\x6D\x2D\x6E\x6F\x74\x2D\x61\x74\x2D\x73\x74\x61\x72\x74\x20\xFF\xFD\x0A"sv;
+	static constexpr auto encoding_bom_not_at_start_2 =
+		"\x62\x6F\x6D\x2D\x6E\x6F\x74\x2D\x61\x74\x2D\x73\x74\x61\x72\x74\x3D\x20\xFF\xFD\x0A"sv;
+	static constexpr auto encoding_utf16_bom =
+		"\xFE\xFF\x00\x23\x00\x20\x00\x55\x00\x54\x00\x46\x00\x2D\x00\x31\x00\x36\x00\x20\x00\x77\x00\x69\x00"
+		"\x74\x00\x68\x00\x20\x00\x42\x00\x4F\x00\x4D\x00\x0A"sv;
+	static constexpr auto encoding_utf16 =
+		"\x00#\x00 \x00U\x00T\x00F\x00-\x001\x006\x00 \x00w\x00i\x00t\x00h\x00o\x00u\x00t\x00 \x00B\x00O\x00M\x00"sv;
 
 	static constexpr auto float_double_point_1		= R"(double-point-1 = 0..1)"sv;
 	static constexpr auto float_double_point_2		= R"(double-point-2 = 0.1.2)"sv;
@@ -93,11 +174,17 @@ trailing-us-exp2 = 1.2_e2)"sv;
 	static constexpr auto float_us_after_point		= R"(us-after-point = 1._2)"sv;
 	static constexpr auto float_us_before_point		= R"(us-before-point = 1_.2)"sv;
 
+	static constexpr auto inline_table_add			 = R"(a={}
+# Inline tables are immutable and can't be extended
+[a.b])"sv;
 	static constexpr auto inline_table_double_comma	 = R"(t = {x=3,,y=4})"sv;
 	static constexpr auto inline_table_duplicate_key = R"(# Duplicate keys within an inline table are invalid
 a={b=1, b=2})"sv;
 	static constexpr auto inline_table_empty		 = R"(t = {,})"sv;
 	static constexpr auto inline_table_no_comma		 = R"(t = {x = 3 y = 4})"sv;
+	static constexpr auto inline_table_overwrite	 = R"(a.b=0
+# Since table "a" is already defined, it can't be replaced by an inline table.
+a={})"sv;
 
 #if !TOML_LANG_UNRELEASED
 
@@ -127,6 +214,9 @@ abc = { abc = 123, })"sv;
 	static constexpr auto integer_double_sign_nex	  = R"(double-sign-nex = --99)"sv;
 	static constexpr auto integer_double_sign_plus	  = R"(double-sign-plus = ++99)"sv;
 	static constexpr auto integer_double_us			  = R"(double-us = 1__23)"sv;
+	static constexpr auto integer_incomplete_bin	  = R"(incomplete-bin = 0b)"sv;
+	static constexpr auto integer_incomplete_hex	  = R"(incomplete-hex = 0x)"sv;
+	static constexpr auto integer_incomplete_oct	  = R"(incomplete-oct = 0o)"sv;
 	static constexpr auto integer_invalid_bin		  = R"(invalid-bin = 0b0012)"sv;
 	static constexpr auto integer_invalid_hex		  = R"(invalid-hex = 0xaafz)"sv;
 	static constexpr auto integer_invalid_oct		  = R"(invalid-oct = 0o778)"sv;
@@ -136,8 +226,10 @@ abc = { abc = 123, })"sv;
 	static constexpr auto integer_leading_us		  = R"(leading-us = _123)"sv;
 	static constexpr auto integer_leading_zero_1	  = R"(leading-zero-1 = 01)"sv;
 	static constexpr auto integer_leading_zero_2	  = R"(leading-zero-2 = 00)"sv;
+	static constexpr auto integer_leading_zero_3	  = R"(leading-zero-3 = 0_0)"sv;
 	static constexpr auto integer_leading_zero_sign_1 = R"(leading-zero-sign-1 = -01)"sv;
 	static constexpr auto integer_leading_zero_sign_2 = R"(leading-zero-sign-2 = +01)"sv;
+	static constexpr auto integer_leading_zero_sign_3 = R"(leading-zero-sign-3 = +0_1)"sv;
 	static constexpr auto integer_negative_bin		  = R"(negative-bin = -0b11010110)"sv;
 	static constexpr auto integer_negative_hex		  = R"(negative-hex = -0xff)"sv;
 	static constexpr auto integer_negative_oct		  = R"(negative-oct = -0o99)"sv;
@@ -166,7 +258,7 @@ dupe = true)"sv;
 	static constexpr auto key_duplicate				 = R"(# DO NOT DO THIS
 name = "Tom"
 name = "Pradyun")"sv;
-	static constexpr auto key_empty					 = R"(= 1)"sv;
+	static constexpr auto key_empty					 = R"( = 1)"sv;
 	static constexpr auto key_escape				 = R"(\u00c0 = "latin capital letter A with grave")"sv;
 	static constexpr auto key_hash					 = R"(a# = 1)"sv;
 	static constexpr auto key_multiline				 = R"("""long
@@ -185,7 +277,7 @@ key""" = 1)"sv;
 	static constexpr auto key_two_equals2			 = R"(a==1)"sv;
 	static constexpr auto key_two_equals3			 = R"(a=b=1)"sv;
 	static constexpr auto key_without_value_1		 = R"(key)"sv;
-	static constexpr auto key_without_value_2		 = R"(key =)"sv;
+	static constexpr auto key_without_value_2		 = R"(key = )"sv;
 
 #if !TOML_LANG_UNRELEASED && UNICODE_LITERALS_OK
 
@@ -197,7 +289,8 @@ key""" = 1)"sv;
 	static constexpr auto string_bad_codepoint =
 		R"(invalid-codepoint = "This string contains a non scalar unicode codepoint \uD801")"sv;
 	static constexpr auto string_bad_concat	   = R"(no_concat = "first" "second")"sv;
-	static constexpr auto string_bad_escape	   = R"(invalid-escape = "This string has a bad \a escape character.")"sv;
+	static constexpr auto string_bad_escape_1  = R"(invalid-escape = "This string has a bad \a escape character.")"sv;
+	static constexpr auto string_bad_escape_2  = R"(invalid-escape = "This string has a bad \  escape character.")"sv;
 	static constexpr auto string_bad_multiline = R"(multi = "first line
 second line")"sv;
 	static constexpr auto string_bad_slash_escape =
@@ -213,6 +306,11 @@ second line")"sv;
 	static constexpr auto string_literal_multiline_quotes_1			 = R"(a = '''6 apostrophes: '''''')"sv;
 	static constexpr auto string_literal_multiline_quotes_2			 = R"(a = '''15 apostrophes: '''''''''''''''''')"sv;
 	static constexpr auto string_missing_quotes						 = R"(name = value)"sv;
+	static constexpr auto string_multiline_bad_escape_1				 = R"(k = """t\a""")"sv;
+	static constexpr auto string_multiline_bad_escape_2				 = R"(# \<Space> is not a valid escape.
+k = """t\ t""")"sv;
+	static constexpr auto string_multiline_bad_escape_3				 = R"(# \<Space> is not a valid escape.
+k = """t\ """)"sv;
 	static constexpr auto string_multiline_escape_space				 = R"(a = """
   foo \ \n
   bar""")"sv;
@@ -231,6 +329,32 @@ second line")"sv;
 
 #endif // !TOML_LANG_UNRELEASED
 
+	static constexpr auto table_append_with_dotted_keys_1 = R"(# First a.b.c defines a table: a.b.c = {z=9}
+#
+# Then we define a.b.c.t = "str" to add a str to the above table, making it:
+#
+#   a.b.c = {z=9, t="..."}
+#
+# While this makes sense, logically, it was decided this is not valid TOML as
+# it's too confusing/convoluted.
+# 
+# See: https://github.com/toml-lang/toml/issues/846
+#      https://github.com/toml-lang/toml/pull/859
+
+[a.b.c]
+  z = 9
+
+[a]
+  b.c.t = "Using dotted keys to add to [a.b.c] after explicitly defining it above is not allowed")"sv;
+	static constexpr auto table_append_with_dotted_keys_2 =
+		R"(# This is the same issue as in injection-1.toml, except that nests one level
+# deeper. See that file for a more complete description.
+
+[a.b.c.d]
+  z = 9
+
+[a]
+  b.c.d.k.t = "Using dotted keys to add to [a.b.c.d] after explicitly defining it above is not allowed")"sv;
 	static constexpr auto table_array_empty = R"([[]]
 name = "Born to Run")"sv;
 	static constexpr auto table_array_implicit =
@@ -248,54 +372,50 @@ name = "Glory Days"
 
 [[albums]]
 name = "Born in the USA")"sv;
-	static constexpr auto table_array_missing_bracket  = R"([[albums]
+	static constexpr auto table_array_missing_bracket		= R"([[albums]
 name = "Born to Run")"sv;
-	static constexpr auto table_duplicate_key_table	   = R"([fruit]
+	static constexpr auto table_duplicate_key_dotted_table	= R"([fruit]
+apple.color = "red"
+
+[fruit.apple] # INVALID)"sv;
+	static constexpr auto table_duplicate_key_dotted_table2 = R"([fruit]
+apple.taste.sweet = true
+
+[fruit.apple.taste] # INVALID)"sv;
+	static constexpr auto table_duplicate_key_table			= R"([fruit]
 type = "apple"
 
 [fruit.type]
 apple = "yes")"sv;
-	static constexpr auto table_duplicate_table_array  = R"([tbl]
+	static constexpr auto table_duplicate_table_array		= R"([tbl]
 [[tbl]])"sv;
-	static constexpr auto table_duplicate_table_array2 = R"([[tbl]]
+	static constexpr auto table_duplicate_table_array2		= R"([[tbl]]
 [tbl])"sv;
-	static constexpr auto table_duplicate			   = R"([a]
+	static constexpr auto table_duplicate					= R"([a]
 b = 1
 
 [a]
 c = 2)"sv;
-	static constexpr auto table_empty_implicit_table   = R"([naughty..naughty])"sv;
-	static constexpr auto table_empty				   = R"([])"sv;
-	static constexpr auto table_equals_sign			   = R"([name=bad])"sv;
-	static constexpr auto table_injection_1			   = R"([a.b.c]
-  z = 9
-[a]
-  b.c.t = "Using dotted keys to add to [a.b.c] after explicitly defining it above is not allowed"
-  
-# see https://github.com/toml-lang/toml/issues/846)"sv;
-	static constexpr auto table_injection_2			   = R"([a.b.c.d]
-  z = 9
-[a]
-  b.c.d.k.t = "Using dotted keys to add to [a.b.c.d] after explicitly defining it above is not allowed"
-  
-# see https://github.com/toml-lang/toml/issues/846)"sv;
-	static constexpr auto table_llbrace				   = R"([ [table]])"sv;
-	static constexpr auto table_nested_brackets_close  = R"([a]b]
+	static constexpr auto table_empty_implicit_table		= R"([naughty..naughty])"sv;
+	static constexpr auto table_empty						= R"([])"sv;
+	static constexpr auto table_equals_sign					= R"([name=bad])"sv;
+	static constexpr auto table_llbrace						= R"([ [table]])"sv;
+	static constexpr auto table_nested_brackets_close		= R"([a]b]
 zyx = 42)"sv;
-	static constexpr auto table_nested_brackets_open   = R"([a[b]
+	static constexpr auto table_nested_brackets_open		= R"([a[b]
 zyx = 42)"sv;
-	static constexpr auto table_quoted_no_close		   = R"(["where will it end]
+	static constexpr auto table_quoted_no_close				= R"(["where will it end]
 name = value)"sv;
-	static constexpr auto table_redefine			   = R"(# Define b as int, and try to use it as a table: error
+	static constexpr auto table_redefine					= R"(# Define b as int, and try to use it as a table: error
 [a]
 b = 1
 
 [a.b]
 c = 2)"sv;
-	static constexpr auto table_rrbrace				   = R"([[table] ])"sv;
-	static constexpr auto table_text_after_table	   = R"([error] this shouldn't be here)"sv;
-	static constexpr auto table_whitespace			   = R"([invalid key])"sv;
-	static constexpr auto table_with_pound			   = R"([key#group]
+	static constexpr auto table_rrbrace						= R"([[table] ])"sv;
+	static constexpr auto table_text_after_table			= R"([error] this shouldn't be here)"sv;
+	static constexpr auto table_whitespace					= R"([invalid key])"sv;
+	static constexpr auto table_with_pound					= R"([key#group]
 answer = 42)"sv;
 }
 
@@ -327,13 +447,81 @@ TEST_CASE("conformance - burntsushi/invalid")
 
 	parsing_should_fail(FILE_LINE_ARGS, bool_wrong_case_true); // bool-wrong-case-true
 
-	parsing_should_fail(FILE_LINE_ARGS, datetime_impossible_date); // datetime-impossible-date
+	parsing_should_fail(FILE_LINE_ARGS, control_bare_cr); // control-bare-cr
+
+	parsing_should_fail(FILE_LINE_ARGS, control_bare_formfeed); // control-bare-formfeed
+
+	parsing_should_fail(FILE_LINE_ARGS, control_bare_null); // control-bare-null
+
+	parsing_should_fail(FILE_LINE_ARGS, control_bare_vertical_tab); // control-bare-vertical-tab
+
+	parsing_should_fail(FILE_LINE_ARGS, control_comment_cr); // control-comment-cr
+
+	parsing_should_fail(FILE_LINE_ARGS, control_comment_del); // control-comment-del
+
+	parsing_should_fail(FILE_LINE_ARGS, control_comment_lf); // control-comment-lf
+
+	parsing_should_fail(FILE_LINE_ARGS, control_comment_null); // control-comment-null
+
+	parsing_should_fail(FILE_LINE_ARGS, control_comment_us); // control-comment-us
+
+	parsing_should_fail(FILE_LINE_ARGS, control_multi_del); // control-multi-del
+
+	parsing_should_fail(FILE_LINE_ARGS, control_multi_lf); // control-multi-lf
+
+	parsing_should_fail(FILE_LINE_ARGS, control_multi_null); // control-multi-null
+
+	parsing_should_fail(FILE_LINE_ARGS, control_multi_us); // control-multi-us
+
+	parsing_should_fail(FILE_LINE_ARGS, control_rawmulti_del); // control-rawmulti-del
+
+	parsing_should_fail(FILE_LINE_ARGS, control_rawmulti_lf); // control-rawmulti-lf
+
+	parsing_should_fail(FILE_LINE_ARGS, control_rawmulti_null); // control-rawmulti-null
+
+	parsing_should_fail(FILE_LINE_ARGS, control_rawmulti_us); // control-rawmulti-us
+
+	parsing_should_fail(FILE_LINE_ARGS, control_rawstring_del); // control-rawstring-del
+
+	parsing_should_fail(FILE_LINE_ARGS, control_rawstring_lf); // control-rawstring-lf
+
+	parsing_should_fail(FILE_LINE_ARGS, control_rawstring_null); // control-rawstring-null
+
+	parsing_should_fail(FILE_LINE_ARGS, control_rawstring_us); // control-rawstring-us
+
+	parsing_should_fail(FILE_LINE_ARGS, control_string_bs); // control-string-bs
+
+	parsing_should_fail(FILE_LINE_ARGS, control_string_del); // control-string-del
+
+	parsing_should_fail(FILE_LINE_ARGS, control_string_lf); // control-string-lf
+
+	parsing_should_fail(FILE_LINE_ARGS, control_string_null); // control-string-null
+
+	parsing_should_fail(FILE_LINE_ARGS, control_string_us); // control-string-us
+
+	parsing_should_fail(FILE_LINE_ARGS, datetime_hour_over); // datetime-hour-over
+
+	parsing_should_fail(FILE_LINE_ARGS, datetime_mday_over); // datetime-mday-over
+
+	parsing_should_fail(FILE_LINE_ARGS, datetime_mday_under); // datetime-mday-under
+
+	parsing_should_fail(FILE_LINE_ARGS, datetime_minute_over); // datetime-minute-over
+
+	parsing_should_fail(FILE_LINE_ARGS, datetime_month_over); // datetime-month-over
+
+	parsing_should_fail(FILE_LINE_ARGS, datetime_month_under); // datetime-month-under
 
 	parsing_should_fail(FILE_LINE_ARGS, datetime_no_leads_with_milli); // datetime-no-leads-with-milli
 
 	parsing_should_fail(FILE_LINE_ARGS, datetime_no_leads); // datetime-no-leads
 
 	parsing_should_fail(FILE_LINE_ARGS, datetime_no_t); // datetime-no-t
+
+	parsing_should_fail(FILE_LINE_ARGS, datetime_second_over); // datetime-second-over
+
+	parsing_should_fail(FILE_LINE_ARGS, datetime_time_no_leads_2); // datetime-time-no-leads-2
+
+	parsing_should_fail(FILE_LINE_ARGS, datetime_time_no_leads); // datetime-time-no-leads
 
 	parsing_should_fail(FILE_LINE_ARGS, datetime_trailing_t); // datetime-trailing-t
 
@@ -342,6 +530,20 @@ TEST_CASE("conformance - burntsushi/invalid")
 	parsing_should_fail(FILE_LINE_ARGS, datetime_no_secs); // datetime-no-secs
 
 #endif // !TOML_LANG_UNRELEASED
+
+	parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_at_end); // encoding-bad-utf8-at-end
+
+	parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_in_comment); // encoding-bad-utf8-in-comment
+
+	parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_in_string); // encoding-bad-utf8-in-string
+
+	parsing_should_fail(FILE_LINE_ARGS, encoding_bom_not_at_start_1); // encoding-bom-not-at-start-1
+
+	parsing_should_fail(FILE_LINE_ARGS, encoding_bom_not_at_start_2); // encoding-bom-not-at-start-2
+
+	parsing_should_fail(FILE_LINE_ARGS, encoding_utf16_bom); // encoding-utf16-bom
+
+	parsing_should_fail(FILE_LINE_ARGS, encoding_utf16); // encoding-utf16
 
 	parsing_should_fail(FILE_LINE_ARGS, float_double_point_1); // float-double-point-1
 
@@ -405,6 +607,8 @@ TEST_CASE("conformance - burntsushi/invalid")
 
 	parsing_should_fail(FILE_LINE_ARGS, float_us_before_point); // float-us-before-point
 
+	parsing_should_fail(FILE_LINE_ARGS, inline_table_add); // inline-table-add
+
 	parsing_should_fail(FILE_LINE_ARGS, inline_table_double_comma); // inline-table-double-comma
 
 	parsing_should_fail(FILE_LINE_ARGS, inline_table_duplicate_key); // inline-table-duplicate-key
@@ -412,6 +616,8 @@ TEST_CASE("conformance - burntsushi/invalid")
 	parsing_should_fail(FILE_LINE_ARGS, inline_table_empty); // inline-table-empty
 
 	parsing_should_fail(FILE_LINE_ARGS, inline_table_no_comma); // inline-table-no-comma
+
+	parsing_should_fail(FILE_LINE_ARGS, inline_table_overwrite); // inline-table-overwrite
 
 #if !TOML_LANG_UNRELEASED
 
@@ -439,6 +645,12 @@ TEST_CASE("conformance - burntsushi/invalid")
 
 	parsing_should_fail(FILE_LINE_ARGS, integer_double_us); // integer-double-us
 
+	parsing_should_fail(FILE_LINE_ARGS, integer_incomplete_bin); // integer-incomplete-bin
+
+	parsing_should_fail(FILE_LINE_ARGS, integer_incomplete_hex); // integer-incomplete-hex
+
+	parsing_should_fail(FILE_LINE_ARGS, integer_incomplete_oct); // integer-incomplete-oct
+
 	parsing_should_fail(FILE_LINE_ARGS, integer_invalid_bin); // integer-invalid-bin
 
 	parsing_should_fail(FILE_LINE_ARGS, integer_invalid_hex); // integer-invalid-hex
@@ -457,9 +669,13 @@ TEST_CASE("conformance - burntsushi/invalid")
 
 	parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_2); // integer-leading-zero-2
 
+	parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_3); // integer-leading-zero-3
+
 	parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_sign_1); // integer-leading-zero-sign-1
 
 	parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_sign_2); // integer-leading-zero-sign-2
+
+	parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_sign_3); // integer-leading-zero-sign-3
 
 	parsing_should_fail(FILE_LINE_ARGS, integer_negative_bin); // integer-negative-bin
 
@@ -547,7 +763,9 @@ TEST_CASE("conformance - burntsushi/invalid")
 
 	parsing_should_fail(FILE_LINE_ARGS, string_bad_concat); // string-bad-concat
 
-	parsing_should_fail(FILE_LINE_ARGS, string_bad_escape); // string-bad-escape
+	parsing_should_fail(FILE_LINE_ARGS, string_bad_escape_1); // string-bad-escape-1
+
+	parsing_should_fail(FILE_LINE_ARGS, string_bad_escape_2); // string-bad-escape-2
 
 	parsing_should_fail(FILE_LINE_ARGS, string_bad_multiline); // string-bad-multiline
 
@@ -581,6 +799,12 @@ TEST_CASE("conformance - burntsushi/invalid")
 
 	parsing_should_fail(FILE_LINE_ARGS, string_missing_quotes); // string-missing-quotes
 
+	parsing_should_fail(FILE_LINE_ARGS, string_multiline_bad_escape_1); // string-multiline-bad-escape-1
+
+	parsing_should_fail(FILE_LINE_ARGS, string_multiline_bad_escape_2); // string-multiline-bad-escape-2
+
+	parsing_should_fail(FILE_LINE_ARGS, string_multiline_bad_escape_3); // string-multiline-bad-escape-3
+
 	parsing_should_fail(FILE_LINE_ARGS, string_multiline_escape_space); // string-multiline-escape-space
 
 	parsing_should_fail(FILE_LINE_ARGS, string_multiline_no_close_2); // string-multiline-no-close-2
@@ -603,11 +827,19 @@ TEST_CASE("conformance - burntsushi/invalid")
 
 #endif // !TOML_LANG_UNRELEASED
 
+	parsing_should_fail(FILE_LINE_ARGS, table_append_with_dotted_keys_1); // table-append-with-dotted-keys-1
+
+	parsing_should_fail(FILE_LINE_ARGS, table_append_with_dotted_keys_2); // table-append-with-dotted-keys-2
+
 	parsing_should_fail(FILE_LINE_ARGS, table_array_empty); // table-array-empty
 
 	parsing_should_fail(FILE_LINE_ARGS, table_array_implicit); // table-array-implicit
 
 	parsing_should_fail(FILE_LINE_ARGS, table_array_missing_bracket); // table-array-missing-bracket
+
+	parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_dotted_table); // table-duplicate-key-dotted-table
+
+	parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_dotted_table2); // table-duplicate-key-dotted-table2
 
 	parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_table); // table-duplicate-key-table
 
@@ -622,10 +854,6 @@ TEST_CASE("conformance - burntsushi/invalid")
 	parsing_should_fail(FILE_LINE_ARGS, table_empty); // table-empty
 
 	parsing_should_fail(FILE_LINE_ARGS, table_equals_sign); // table-equals-sign
-
-	parsing_should_fail(FILE_LINE_ARGS, table_injection_1); // table-injection-1
-
-	parsing_should_fail(FILE_LINE_ARGS, table_injection_2); // table-injection-2
 
 	parsing_should_fail(FILE_LINE_ARGS, table_llbrace); // table-llbrace
 

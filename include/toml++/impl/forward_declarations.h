@@ -119,7 +119,7 @@ TOML_IMPL_NAMESPACE_START
 
 	// clang-format off
 
-	inline constexpr std::string_view low_character_escape_table[] =
+	inline constexpr std::string_view control_char_escapes[] =
 	{
 		"\\u0000"sv,
 		"\\u0001"sv,
@@ -264,7 +264,7 @@ TOML_NAMESPACE_START // abi namespace
 	}
 
 	/// \brief Metadata associated with TOML values.
-	enum class TOML_OPEN_FLAGS_ENUM value_flags : uint16_t
+	enum class TOML_OPEN_FLAGS_ENUM value_flags : uint16_t // being an "OPEN" flags enum is not an error
 	{
 		/// \brief None.
 		none,
@@ -309,23 +309,32 @@ TOML_NAMESPACE_START // abi namespace
 		/// \brief Allow real tab characters in string literals (as opposed to the escaped form `\t`).
 		allow_real_tabs_in_strings = (1ull << 4),
 
+		/// \brief Allow non-ASCII characters in strings (as opposed to their escaped form, e.g. `\u00DA`).
+		allow_unicode_strings = (1ull << 5),
+
 		/// \brief Allow integers with #value_flags::format_as_binary to be emitted as binary.
-		allow_binary_integers = (1ull << 5),
+		allow_binary_integers = (1ull << 6),
 
 		/// \brief Allow integers with #value_flags::format_as_octal to be emitted as octal.
-		allow_octal_integers = (1ull << 6),
+		allow_octal_integers = (1ull << 7),
 
 		/// \brief Allow integers with #value_flags::format_as_hexadecimal to be emitted as hexadecimal.
-		allow_hexadecimal_integers = (1ull << 7),
+		allow_hexadecimal_integers = (1ull << 8),
 
 		/// \brief Apply indentation to tables nested within other tables/arrays.
-		indent_sub_tables = (1ull << 8),
+		indent_sub_tables = (1ull << 9),
 
 		/// \brief Apply indentation to array elements when the array is forced to wrap over multiple lines.
-		indent_array_elements = (1ull << 9),
+		indent_array_elements = (1ull << 10),
 
 		/// \brief Combination mask of all indentation-enabling flags.
 		indentation = indent_sub_tables | indent_array_elements,
+
+		/// \brief Emit floating-point values with relaxed (human-friendly) precision.
+		/// \warning	Setting this flag may cause serialized documents to no longer round-trip correctly
+		///				since floats might have a less precise value upon being written out than they did when being
+		///				read in. Use this flag at your own risk.
+		relaxed_float_precision = (1ull << 11),
 	};
 	TOML_MAKE_FLAGS(format_flags);
 
@@ -927,15 +936,21 @@ TOML_NAMESPACE_START
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a std::string or toml::value<std::string>.
 	template <typename T>
-	inline constexpr bool is_string = std::is_same_v<impl::wrap_node<impl::remove_cvref<T>>, value<std::string>>;
+	inline constexpr bool is_string = std::is_same_v<				//
+		impl::remove_cvref<impl::wrap_node<impl::remove_cvref<T>>>, //
+		value<std::string>>;
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a int64_t or toml::value<int64_t>.
 	template <typename T>
-	inline constexpr bool is_integer = std::is_same_v<impl::wrap_node<impl::remove_cvref<T>>, value<int64_t>>;
+	inline constexpr bool is_integer = std::is_same_v<				//
+		impl::remove_cvref<impl::wrap_node<impl::remove_cvref<T>>>, //
+		value<int64_t>>;
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a double or toml::value<double>.
 	template <typename T>
-	inline constexpr bool is_floating_point = std::is_same_v<impl::wrap_node<impl::remove_cvref<T>>, value<double>>;
+	inline constexpr bool is_floating_point = std::is_same_v<		//
+		impl::remove_cvref<impl::wrap_node<impl::remove_cvref<T>>>, //
+		value<double>>;
 
 	/// \brief	Metafunction for determining if a type satisfies either toml::is_integer or toml::is_floating_point.
 	template <typename T>
@@ -943,19 +958,27 @@ TOML_NAMESPACE_START
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a bool or toml::value<bool>.
 	template <typename T>
-	inline constexpr bool is_boolean = std::is_same_v<impl::wrap_node<impl::remove_cvref<T>>, value<bool>>;
+	inline constexpr bool is_boolean = std::is_same_v<				//
+		impl::remove_cvref<impl::wrap_node<impl::remove_cvref<T>>>, //
+		value<bool>>;
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a toml::date or toml::value<date>.
 	template <typename T>
-	inline constexpr bool is_date = std::is_same_v<impl::wrap_node<impl::remove_cvref<T>>, value<date>>;
+	inline constexpr bool is_date = std::is_same_v<					//
+		impl::remove_cvref<impl::wrap_node<impl::remove_cvref<T>>>, //
+		value<date>>;
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a toml::time or toml::value<time>.
 	template <typename T>
-	inline constexpr bool is_time = std::is_same_v<impl::wrap_node<impl::remove_cvref<T>>, value<time>>;
+	inline constexpr bool is_time = std::is_same_v<					//
+		impl::remove_cvref<impl::wrap_node<impl::remove_cvref<T>>>, //
+		value<time>>;
 
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a toml::date_time or toml::value<date_time>.
 	template <typename T>
-	inline constexpr bool is_date_time = std::is_same_v<impl::wrap_node<impl::remove_cvref<T>>, value<date_time>>;
+	inline constexpr bool is_date_time = std::is_same_v<			//
+		impl::remove_cvref<impl::wrap_node<impl::remove_cvref<T>>>, //
+		value<date_time>>;
 
 	/// \brief	Metafunction for determining if a type satisfies any of toml::is_date, toml::is_time or toml::is_date_time.
 	template <typename T>
@@ -1034,7 +1057,7 @@ TOML_IMPL_NAMESPACE_START
 
 	template <typename T>
 	TOML_PURE_GETTER
-	inline const T& min(const T& a, const T& b) noexcept //
+	constexpr const T& min(const T& a, const T& b) noexcept //
 	{
 		return a < b ? a : b;
 	}

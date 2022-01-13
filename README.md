@@ -132,6 +132,11 @@ FetchContent_MakeAvailable(tomlplusplus)
 in the C++ ecosystem. I'm also a cmake novice, for better or worse. If there's an integration option missing be
 assured that I fully support it being added, and welcome [pull requests](./CONTRIBUTING.md)!
 
+### What about dependencies?
+If you just want to consume `toml++` as a regular library then you don't have any dependencies to worry about.
+There's a few test-related dependencies to be aware of if you're working on the library, though.
+See [CONTRIBUTING] for information.
+
 <br>
 
 # Configuration
@@ -208,6 +213,7 @@ UTF-8 decoding is performed using a state machine based on Bjoern Hoehrmann's '[
 - **[@bobfang1992](https://github.com/bobfang1992)** - Reported a bug and created a [wrapper in python](https://github.com/bobfang1992/pytomlpp)
 - **[@GiulioRomualdi](https://github.com/GiulioRomualdi)** - Added cmake+meson support
 - **[@levicki](https://github.com/levicki)** - Helped design some new features
+- **[@moorereason](https://github.com/moorereason)** - Reported a whole bunch of bugs
 - **[@mosra](https://github.com/mosra)** - Created the awesome [m.css] used to generate the API docs
 - **[@ned14](https://github.com/ned14)** - Reported a bunch of bugs and helped design some new features
 - **[@okureta](https://github.com/okureta)** - Reported a bug

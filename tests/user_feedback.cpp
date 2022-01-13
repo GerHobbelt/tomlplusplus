@@ -95,7 +95,7 @@ TEST_CASE("user feedback")
 			"\x0c\x0c\x0c\x0c\x0c\x0c\x0c\x0c\x0c\x0c' 'ml'\n\n%\x87");
 		parsing_should_fail(
 			FILE_LINE_ARGS,
-			R"(t =[ 9, 2, 1,"r", 9999999999999999999999999999999999999999999999999999999999999995.0 ])");
+			R"(t =[ 9, 2, 1,"r", 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0 ])");
 	}
 
 	SECTION("github/issues/67") // https://github.com/marzer/tomlplusplus/issues/67
@@ -191,5 +191,133 @@ b = []
 			  u = 0
 		)",
 							4);
+	}
+
+	SECTION("github/issues/125") // https://github.com/marzer/tomlplusplus/issues/125
+	{
+		parse_expected_value(FILE_LINE_ARGS, R"("\u0800")"sv, "\xE0\xA0\x80"sv);
+		parse_expected_value(FILE_LINE_ARGS, R"("\u7840")"sv, "\xE7\xA1\x80"sv);
+		parse_expected_value(FILE_LINE_ARGS, R"("\uAA23")"sv, "\xEA\xA8\xA3"sv);
+		parse_expected_value(FILE_LINE_ARGS, R"("\uA928")"sv, "\xEA\xA4\xA8"sv);
+		parse_expected_value(FILE_LINE_ARGS, R"("\u9CBF")"sv, "\xE9\xB2\xBF"sv);
+		parse_expected_value(FILE_LINE_ARGS, R"("\u2247")"sv, "\xE2\x89\x87"sv);
+		parse_expected_value(FILE_LINE_ARGS, R"("\u13D9")"sv, "\xE1\x8F\x99"sv);
+		parse_expected_value(FILE_LINE_ARGS, R"("\u69FC")"sv, "\xE6\xA7\xBC"sv);
+		parse_expected_value(FILE_LINE_ARGS, R"("\u8DE5")"sv, "\xE8\xB7\xA5"sv);
+		parse_expected_value(FILE_LINE_ARGS, R"("\u699C")"sv, "\xE6\xA6\x9C"sv);
+		parse_expected_value(FILE_LINE_ARGS, R"("\u8CD4")"sv, "\xE8\xB3\x94"sv);
+		parse_expected_value(FILE_LINE_ARGS, R"("\u4ED4")"sv, "\xE4\xBB\x94"sv);
+		parse_expected_value(FILE_LINE_ARGS, R"("\u2597")"sv, "\xE2\x96\x97"sv);
+	}
+
+	SECTION("github/issues/127") // https://github.com/marzer/tomlplusplus/issues/127
+	{
+		parse_expected_value(FILE_LINE_ARGS,
+							 "12:34:56.11122233345678"sv,
+							 toml::time{
+								 12,
+								 34,
+								 56,
+								 111222333u // should truncate the .45678 part
+							 });
+	}
+
+	SECTION("github/issues/128") // https://github.com/marzer/tomlplusplus/issues/128
+	{
+		parsing_should_fail(FILE_LINE_ARGS, "\f"sv);
+		parsing_should_fail(FILE_LINE_ARGS, "\v"sv);
+		parsing_should_succeed(FILE_LINE_ARGS, " "sv);
+		parsing_should_succeed(FILE_LINE_ARGS, "\t"sv);
+		parsing_should_succeed(FILE_LINE_ARGS, "\n"sv);
+	}
+
+	SECTION("github/issues/129") // https://github.com/marzer/tomlplusplus/issues/129
+	{
+		parsing_should_fail(FILE_LINE_ARGS, R"(
+			hex = 0x
+			oct = 0o
+			bin = 0b
+		)"sv);
+	}
+
+	SECTION("github/issues/130") // https://github.com/marzer/tomlplusplus/issues/130
+	{
+		parse_expected_value(FILE_LINE_ARGS, "0400-01-01 00:00:00"sv, toml::date_time{ { 400, 1, 1 }, { 0, 0, 0 } });
+		parse_expected_value(FILE_LINE_ARGS, "0400-01-01         "sv, toml::date{ 400, 1, 1 });
+		parse_expected_value(FILE_LINE_ARGS, "0400-01-01T00:00:00"sv, toml::date_time{ { 400, 1, 1 }, { 0, 0, 0 } });
+		parse_expected_value(FILE_LINE_ARGS, "1000-01-01 00:00:00"sv, toml::date_time{ { 1000, 1, 1 }, { 0, 0, 0 } });
+	}
+
+	SECTION("github/issues/131") // https://github.com/marzer/tomlplusplus/issues/131
+	{
+		parsing_should_fail(FILE_LINE_ARGS, R"(
+			a={}
+			[a.b]
+		)"sv);
+	}
+
+	SECTION("github/issues/132") // https://github.com/marzer/tomlplusplus/issues/132
+	{
+		parsing_should_fail(FILE_LINE_ARGS, "#\r"sv);
+	}
+
+	SECTION("github/issues/134") // https://github.com/marzer/tomlplusplus/issues/134
+	{
+		// binary
+		parsing_should_fail(
+			FILE_LINE_ARGS,
+			"val = 0b11111111_11111111_11111111_11111111_11111111_11111111_11111111_11111111"sv); // uint64_t
+																								  // max
+		parsing_should_fail(
+			FILE_LINE_ARGS,
+			"val = 0b10000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000"sv); // int64_t
+																								  // max
+																								  // + 1
+		parse_expected_value(FILE_LINE_ARGS,
+							 "0b01111111_11111111_11111111_11111111_11111111_11111111_11111111_11111111"sv,
+							 INT64_MAX); // int64_t max
+
+		// octal
+		parsing_should_fail(FILE_LINE_ARGS, " val = 0o1777777777777777777777"sv); // uint64_t max
+		parsing_should_fail(FILE_LINE_ARGS, " val = 0o1000000000000000000000"sv); // int64_t max + 1
+		parse_expected_value(FILE_LINE_ARGS, "      0o0777777777777777777777"sv, INT64_MAX);
+
+		// decimal
+		parsing_should_fail(FILE_LINE_ARGS, " val =  100000000000000000000"sv);
+		parsing_should_fail(FILE_LINE_ARGS, " val =   18446744073709551615"sv); // uint64_t max
+		parsing_should_fail(FILE_LINE_ARGS, " val =   10000000000000000000"sv);
+		parsing_should_fail(FILE_LINE_ARGS, " val =    9999999999999999999"sv);
+		parsing_should_fail(FILE_LINE_ARGS, " val =    9223372036854775808"sv); // int64_t max + 1
+		parse_expected_value(FILE_LINE_ARGS, "         9223372036854775807"sv, INT64_MAX);
+		parse_expected_value(FILE_LINE_ARGS, "         1000000000000000000"sv, 1000000000000000000LL);
+		parse_expected_value(FILE_LINE_ARGS, "        -1000000000000000000"sv, -1000000000000000000LL);
+		parse_expected_value(FILE_LINE_ARGS, "        -9223372036854775808"sv, INT64_MIN);
+		parsing_should_fail(FILE_LINE_ARGS, " val =   -9223372036854775809"sv); // int64_t min - 1
+		parsing_should_fail(FILE_LINE_ARGS, " val =  -10000000000000000000"sv);
+		parsing_should_fail(FILE_LINE_ARGS, " val =  -18446744073709551615"sv); // -(uint64_t max)
+		parsing_should_fail(FILE_LINE_ARGS, " val = -100000000000000000000"sv);
+
+		// hexadecimal
+		parsing_should_fail(FILE_LINE_ARGS, " val = 0xFFFFFFFFFFFFFFFF"sv); // uint64_t max
+		parsing_should_fail(FILE_LINE_ARGS, " val = 0x8000000000000000"sv); // int64_t max + 1
+		parse_expected_value(FILE_LINE_ARGS, "      0x7FFFFFFFFFFFFFFF"sv, INT64_MAX);
+	}
+
+	SECTION("github/issues/135") // https://github.com/marzer/tomlplusplus/issues/135
+	{
+		parsing_should_succeed(FILE_LINE_ARGS, "0=0"sv);
+		parsing_should_succeed(FILE_LINE_ARGS, "1=1"sv);
+		parsing_should_succeed(FILE_LINE_ARGS, "2=2"sv);
+
+		parsing_should_succeed(FILE_LINE_ARGS,
+							   "0=0\n"
+							   "1=1\n"
+							   "2=2\n"sv);
+
+		parsing_should_fail(FILE_LINE_ARGS,
+							"0=0\n"
+							"\u2000\u2000\n"
+							"1=1\n"
+							"2=2\n"sv);
 	}
 }

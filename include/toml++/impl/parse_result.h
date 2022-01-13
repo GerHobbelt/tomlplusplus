@@ -30,7 +30,7 @@ TOML_NAMESPACE_START
 	/// 		or a toml::parse_error. Most member functions assume a particular one of these two states,
 	/// 		and calling them when in the wrong state will cause errors (e.g. attempting to access the
 	/// 		error object when parsing was successful). \cpp
-	/// parse_result result = toml::parse_file("config.toml");
+	/// toml::parse_result result = toml::parse_file("config.toml");
 	/// if (result)
 	///		do_stuff_with_a_table(result); //implicitly converts to table&
 	///	else
@@ -45,7 +45,7 @@ TOML_NAMESPACE_START
 	///		(error occurred at line 1, column 13 of 'config.toml')
 	/// \eout
 	///
-	/// Getting node_views (`operator[]`) and using the iterator accessor functions (`begin(), end()` etc.) are
+	/// Getting node_views (`operator[]`, `at_path()`) and using the iterator accessor functions (`begin()`, `end()` etc.) are
 	/// unconditionally safe; when parsing fails these just return 'empty' values. A ranged-for loop on a failed
 	/// parse_result is also safe since `begin()` and `end()` return the same iterator and will not lead to any
 	/// dereferences and iterations.
@@ -82,123 +82,7 @@ TOML_NAMESPACE_START
 		}
 
 	  public:
-		/// \brief A BidirectionalIterator for iterating over key-value pairs in a wrapped toml::table.
-		using iterator = table_iterator;
-
-		/// \brief A BidirectionalIterator for iterating over const key-value pairs in a wrapped toml::table.
-		using const_iterator = const_table_iterator;
-
-		/// \brief	Returns true if parsing succeeeded.
-		TOML_NODISCARD
-		bool succeeded() const noexcept
-		{
-			return !err_;
-		}
-
-		/// \brief	Returns true if parsing failed.
-		TOML_NODISCARD
-		bool failed() const noexcept
-		{
-			return err_;
-		}
-
-		/// \brief	Returns true if parsing succeeded.
-		TOML_NODISCARD
-		explicit operator bool() const noexcept
-		{
-			return !err_;
-		}
-
-		/// \brief	Returns the internal toml::table.
-		TOML_NODISCARD
-		toml::table& table() & noexcept
-		{
-			TOML_ASSERT_ASSUME(!err_);
-			return *get_as<toml::table>(storage_);
-		}
-
-		/// \brief	Returns the internal toml::table (rvalue overload).
-		TOML_NODISCARD
-		toml::table&& table() && noexcept
-		{
-			TOML_ASSERT_ASSUME(!err_);
-			return static_cast<toml::table&&>(*get_as<toml::table>(storage_));
-		}
-
-		/// \brief	Returns the internal toml::table (const lvalue overload).
-		TOML_NODISCARD
-		const toml::table& table() const& noexcept
-		{
-			TOML_ASSERT_ASSUME(!err_);
-			return *get_as<const toml::table>(storage_);
-		}
-
-		/// \brief	Returns the internal toml::parse_error.
-		TOML_NODISCARD
-		parse_error& error() & noexcept
-		{
-			TOML_ASSERT_ASSUME(err_);
-			return *get_as<parse_error>(storage_);
-		}
-
-		/// \brief	Returns the internal toml::parse_error (rvalue overload).
-		TOML_NODISCARD
-		parse_error&& error() && noexcept
-		{
-			TOML_ASSERT_ASSUME(err_);
-			return static_cast<parse_error&&>(*get_as<parse_error>(storage_));
-		}
-
-		/// \brief	Returns the internal toml::parse_error (const lvalue overload).
-		TOML_NODISCARD
-		const parse_error& error() const& noexcept
-		{
-			TOML_ASSERT_ASSUME(err_);
-			return *get_as<const parse_error>(storage_);
-		}
-
-		/// \brief	Returns the internal toml::table.
-		TOML_NODISCARD
-		operator toml::table&() noexcept
-		{
-			return table();
-		}
-
-		/// \brief	Returns the internal toml::table (rvalue overload).
-		TOML_NODISCARD
-		operator toml::table&&() noexcept
-		{
-			return std::move(table());
-		}
-
-		/// \brief	Returns the internal toml::table (const lvalue overload).
-		TOML_NODISCARD
-		operator const toml::table&() const noexcept
-		{
-			return table();
-		}
-
-		/// \brief	Returns the internal toml::parse_error.
-		TOML_NODISCARD
-		explicit operator parse_error&() noexcept
-		{
-			return error();
-		}
-
-		/// \brief	Returns the internal toml::parse_error (rvalue overload).
-		TOML_NODISCARD
-		explicit operator parse_error&&() noexcept
-		{
-			return std::move(error());
-		}
-
-		/// \brief	Returns the internal toml::parse_error (const lvalue overload).
-		TOML_NODISCARD
-		explicit operator const parse_error&() const noexcept
-		{
-			return error();
-		}
-
+		/// \brief Default constructs an 'error' result.
 		TOML_NODISCARD_CTOR
 		parse_result() noexcept //
 			: err_{ true }
@@ -259,6 +143,191 @@ TOML_NAMESPACE_START
 			destroy();
 		}
 
+		/// \name Result state
+		/// @{
+
+		/// \brief	Returns true if parsing succeeeded.
+		TOML_NODISCARD
+		bool succeeded() const noexcept
+		{
+			return !err_;
+		}
+
+		/// \brief	Returns true if parsing failed.
+		TOML_NODISCARD
+		bool failed() const noexcept
+		{
+			return err_;
+		}
+
+		/// \brief	Returns true if parsing succeeded.
+		TOML_NODISCARD
+		explicit operator bool() const noexcept
+		{
+			return !err_;
+		}
+
+		/// @}
+
+		/// \name Successful parses
+		/// @{
+
+		/// \brief	Returns the internal toml::table.
+		TOML_NODISCARD
+		toml::table& table() & noexcept
+		{
+			TOML_ASSERT_ASSUME(!err_);
+			return *get_as<toml::table>(storage_);
+		}
+
+		/// \brief	Returns the internal toml::table (rvalue overload).
+		TOML_NODISCARD
+		toml::table&& table() && noexcept
+		{
+			TOML_ASSERT_ASSUME(!err_);
+			return static_cast<toml::table&&>(*get_as<toml::table>(storage_));
+		}
+
+		/// \brief	Returns the internal toml::table (const lvalue overload).
+		TOML_NODISCARD
+		const toml::table& table() const& noexcept
+		{
+			TOML_ASSERT_ASSUME(!err_);
+			return *get_as<const toml::table>(storage_);
+		}
+
+		/// \brief	Returns the internal toml::table.
+		TOML_NODISCARD
+		/* implicit */ operator toml::table&() noexcept
+		{
+			return table();
+		}
+
+		/// \brief	Returns the internal toml::table (rvalue overload).
+		TOML_NODISCARD
+		/* implicit */ operator toml::table&&() noexcept
+		{
+			return std::move(table());
+		}
+
+		/// \brief	Returns the internal toml::table (const lvalue overload).
+		TOML_NODISCARD
+		/* implicit */ operator const toml::table&() const noexcept
+		{
+			return table();
+		}
+
+		/// @}
+
+		/// \name Failed parses
+		/// @{
+
+		/// \brief	Returns the internal toml::parse_error.
+		TOML_NODISCARD
+		parse_error& error() & noexcept
+		{
+			TOML_ASSERT_ASSUME(err_);
+			return *get_as<parse_error>(storage_);
+		}
+
+		/// \brief	Returns the internal toml::parse_error (rvalue overload).
+		TOML_NODISCARD
+		parse_error&& error() && noexcept
+		{
+			TOML_ASSERT_ASSUME(err_);
+			return static_cast<parse_error&&>(*get_as<parse_error>(storage_));
+		}
+
+		/// \brief	Returns the internal toml::parse_error (const lvalue overload).
+		TOML_NODISCARD
+		const parse_error& error() const& noexcept
+		{
+			TOML_ASSERT_ASSUME(err_);
+			return *get_as<const parse_error>(storage_);
+		}
+
+		/// \brief	Returns the internal toml::parse_error.
+		TOML_NODISCARD
+		explicit operator parse_error&() noexcept
+		{
+			return error();
+		}
+
+		/// \brief	Returns the internal toml::parse_error (rvalue overload).
+		TOML_NODISCARD
+		explicit operator parse_error&&() noexcept
+		{
+			return std::move(error());
+		}
+
+		/// \brief	Returns the internal toml::parse_error (const lvalue overload).
+		TOML_NODISCARD
+		explicit operator const parse_error&() const noexcept
+		{
+			return error();
+		}
+
+		/// @}
+
+		/// \name Iterators
+		/// @{
+
+		/// \brief A BidirectionalIterator for iterating over key-value pairs in a wrapped toml::table.
+		using iterator = table_iterator;
+
+		/// \brief A BidirectionalIterator for iterating over const key-value pairs in a wrapped toml::table.
+		using const_iterator = const_table_iterator;
+
+		/// \brief	Returns an iterator to the first key-value pair in the wrapped table.
+		/// \remarks Always returns the same value as #end() if parsing failed.
+		TOML_NODISCARD
+		table_iterator begin() noexcept
+		{
+			return err_ ? table_iterator{} : table().begin();
+		}
+
+		/// \brief	Returns an iterator to the first key-value pair in the wrapped table.
+		/// \remarks Always returns the same value as #end() if parsing failed.
+		TOML_NODISCARD
+		const_table_iterator begin() const noexcept
+		{
+			return err_ ? const_table_iterator{} : table().begin();
+		}
+
+		/// \brief	Returns an iterator to the first key-value pair in the wrapped table.
+		/// \remarks Always returns the same value as #cend() if parsing failed.
+		TOML_NODISCARD
+		const_table_iterator cbegin() const noexcept
+		{
+			return err_ ? const_table_iterator{} : table().cbegin();
+		}
+
+		/// \brief	Returns an iterator to one-past-the-last key-value pair in the wrapped table.
+		TOML_NODISCARD
+		table_iterator end() noexcept
+		{
+			return err_ ? table_iterator{} : table().end();
+		}
+
+		/// \brief	Returns an iterator to one-past-the-last key-value pair in the wrapped table.
+		TOML_NODISCARD
+		const_table_iterator end() const noexcept
+		{
+			return err_ ? const_table_iterator{} : table().end();
+		}
+
+		/// \brief	Returns an iterator to one-past-the-last key-value pair in the wrapped table.
+		TOML_NODISCARD
+		const_table_iterator cend() const noexcept
+		{
+			return err_ ? const_table_iterator{} : table().cend();
+		}
+
+		/// @}
+
+		/// \name Node views
+		/// @{
+
 		/// \brief	Gets a node_view for the selected key-value pair in the wrapped table.
 		///
 		/// \param 	key The key used for the lookup.
@@ -285,6 +354,24 @@ TOML_NAMESPACE_START
 		node_view<const node> operator[](std::string_view key) const noexcept
 		{
 			return err_ ? node_view<const node>{} : table()[key];
+		}
+
+		/// \brief Returns a view of the subnode matching a fully-qualified "TOML path".
+		///
+		/// \see #toml::at_path(node&, std::string_view)
+		TOML_NODISCARD
+		node_view<node> at_path(std::string_view path) noexcept
+		{
+			return err_ ? node_view<node>{} : table().at_path(path);
+		}
+
+		/// \brief Returns a const view of the subnode matching a fully-qualified "TOML path".
+		///
+		/// \see #toml::at_path(node&, std::string_view)
+		TOML_NODISCARD
+		node_view<const node> at_path(std::string_view path) const noexcept
+		{
+			return err_ ? node_view<const node>{} : table().at_path(path);
 		}
 
 #if TOML_ENABLE_WINDOWS_COMPAT
@@ -321,55 +408,31 @@ TOML_NAMESPACE_START
 			return err_ ? node_view<const node>{} : table()[key];
 		}
 
+		/// \brief Returns a view of the subnode matching a fully-qualified "TOML path".
+		///
+		/// \availability This overload is only available when #TOML_ENABLE_WINDOWS_COMPAT is enabled.
+		///
+		/// \see #toml::at_path(node&, std::string_view)
+		TOML_NODISCARD
+		node_view<node> at_path(std::wstring_view path) noexcept
+		{
+			return err_ ? node_view<node>{} : table().at_path(path);
+		}
+
+		/// \brief Returns a const view of the subnode matching a fully-qualified "TOML path".
+		///
+		/// \availability This overload is only available when #TOML_ENABLE_WINDOWS_COMPAT is enabled.
+		///
+		/// \see #toml::at_path(node&, std::string_view)
+		TOML_NODISCARD
+		node_view<const node> at_path(std::wstring_view path) const noexcept
+		{
+			return err_ ? node_view<const node>{} : table().at_path(path);
+		}
+
 #endif // TOML_ENABLE_WINDOWS_COMPAT
 
-		/// \brief	Returns an iterator to the first key-value pair in the wrapped table.
-		/// \remarks Returns a default-constructed 'nothing' iterator if the parsing failed.
-		TOML_NODISCARD
-		table_iterator begin() noexcept
-		{
-			return err_ ? table_iterator{} : table().begin();
-		}
-
-		/// \brief	Returns an iterator to the first key-value pair in the wrapped table.
-		/// \remarks Returns a default-constructed 'nothing' iterator if the parsing failed.
-		TOML_NODISCARD
-		const_table_iterator begin() const noexcept
-		{
-			return err_ ? const_table_iterator{} : table().begin();
-		}
-
-		/// \brief	Returns an iterator to the first key-value pair in the wrapped table.
-		/// \remarks Returns a default-constructed 'nothing' iterator if the parsing failed.
-		TOML_NODISCARD
-		const_table_iterator cbegin() const noexcept
-		{
-			return err_ ? const_table_iterator{} : table().cbegin();
-		}
-
-		/// \brief	Returns an iterator to one-past-the-last key-value pair in the wrapped table.
-		/// \remarks Returns a default-constructed 'nothing' iterator if the parsing failed.
-		TOML_NODISCARD
-		table_iterator end() noexcept
-		{
-			return err_ ? table_iterator{} : table().end();
-		}
-
-		/// \brief	Returns an iterator to one-past-the-last key-value pair in the wrapped table.
-		/// \remarks Returns a default-constructed 'nothing' iterator if the parsing failed.
-		TOML_NODISCARD
-		const_table_iterator end() const noexcept
-		{
-			return err_ ? const_table_iterator{} : table().end();
-		}
-
-		/// \brief	Returns an iterator to one-past-the-last key-value pair in the wrapped table.
-		/// \remarks Returns a default-constructed 'nothing' iterator if the parsing failed.
-		TOML_NODISCARD
-		const_table_iterator cend() const noexcept
-		{
-			return err_ ? const_table_iterator{} : table().cend();
-		}
+		/// @}
 
 #if TOML_ENABLE_FORMATTERS
 

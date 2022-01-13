@@ -85,7 +85,9 @@ more = [ # Comment
 ] # Hopefully not.
 
 # Make sure the space between the datetime and "#" isn't lexed.
-d = 1979-05-27T07:32:12-07:00  # c)"sv;
+dt = 1979-05-27T07:32:12-07:00  # c
+d = 1979-05-27 # Comment)"sv;
+	static constexpr auto comment_noeol		 = R"(# single comment without any eol characters)"sv;
 	static constexpr auto comment_tricky	 = R"([section]#attached comment
 #[notsection]
 one = "11"#cmt
@@ -124,9 +126,9 @@ milliseconds = 10:32:00.555)"sv;
 	static constexpr auto datetime_local		= R"(local = 1987-07-05T17:45:00
 milli = 1977-12-21T10:32:00.555
 space = 1987-07-05 17:45:00)"sv;
-	static constexpr auto datetime_milliseconds = R"(utc1  = 1987-07-05T17:45:56.123456Z
+	static constexpr auto datetime_milliseconds = R"(utc1  = 1987-07-05T17:45:56.1234Z
 utc2  = 1987-07-05T17:45:56.6Z
-wita1 = 1987-07-05T17:45:56.123456+08:00
+wita1 = 1987-07-05T17:45:56.1234+08:00
 wita2 = 1987-07-05T17:45:56.6+08:00)"sv;
 	static constexpr auto datetime_timezone		= R"(utc  = 1987-07-05T17:45:56Z
 pdt  = 1987-07-05T17:45:56-05:00
@@ -366,8 +368,8 @@ true = 1
 inf = 100000000
 nan = "ceci n'est pas un nombre")"sv;
 
-	static constexpr auto newline_crlf = R"(os = "DOS"
-newline = "crlf")"sv;
+	static constexpr auto newline_crlf = "os = \"DOS\"\r\n"
+										 "newline = \"crlf\""sv;
 	static constexpr auto newline_lf   = R"(os = "unix"
 newline = "lf")"sv;
 
@@ -431,6 +433,24 @@ hosts = [
 	static constexpr auto string_double_quote_escape = R"(test = "\"one\"")"sv;
 	static constexpr auto string_empty				 = R"(answer = "")"sv;
 	static constexpr auto string_escaped_escape		 = R"(answer = "\\x64")"sv;
+	static constexpr auto string_escapes			 = R"(backspace = "This string has a \b backspace character."
+tab = "This string has a \t tab character."
+newline = "This string has a \n new line character."
+formfeed = "This string has a \f form feed character."
+carriage = "This string has a \r carriage return character."
+quote = "This string has a \" quote character."
+backslash = "This string has a \\ backslash character."
+notunicode1 = "This string does not have a unicode \\u escape."
+notunicode2 = "This string does not have a unicode \u005Cu escape."
+notunicode3 = "This string does not have a unicode \\u0075 escape."
+notunicode4 = "This string does not have a unicode \\\u0075 escape."
+delete = "This string has a \u007F delete control code."
+unitseparator = "This string has a \u001F unit separator control code.")"sv;
+	static constexpr auto string_multiline_escaped_crlf =
+		"# The following line should be an unescaped backslash followed by a Windows\r\n"
+		"# newline sequence (\"\\r\\n\")\r\n"
+		"0=\"\"\"\\\r\n"
+		"\"\"\""sv;
 	static constexpr auto string_multiline_quotes =
 		R"(# Make sure that quotes inside multiline strings are allowed, including right
 # after the opening '''/""" and before the closing '''/"""
@@ -447,61 +467,73 @@ two_space = """ ""two quotes"" """
 
 mismatch1 = """aaa'''bbb"""
 mismatch2 = '''aaa"""bbb''')"sv;
-	static constexpr auto string_multiline	   = R"(# NOTE: this file includes some literal tab characters.
-
-multiline_empty_one = """"""
-multiline_empty_two = """
-"""
-multiline_empty_three = """\
-    """
-multiline_empty_four = """\
-   \
-   \
-   """
-
-equivalent_one = "The quick brown fox jumps over the lazy dog."
-equivalent_two = """
-The quick brown \
-
-
-  fox jumps over \
-    the lazy dog."""
-
-equivalent_three = """\
-       The quick brown \
-       fox jumps over \
-       the lazy dog.\
-       """
-
-whitespace-after-bs = """\
-       The quick brown \
-       fox jumps over \
-       the lazy dog.\
-       """
-
-no-space = """a\
-    b"""
-
-keep-ws-before = """a   	\
-   b"""
-
-escape-bs-1 = """a \\
-b"""
-
-escape-bs-2 = """a \\\
-b"""
-
-escape-bs-3 = """a \\\\
-  b""")"sv;
+	static constexpr auto string_multiline =
+		"# NOTE: this file includes some literal tab characters.\n"
+		"\n"
+		"multiline_empty_one = \"\"\"\"\"\"\n"
+		"\n"
+		"# A newline immediately following the opening delimiter will be trimmed.\n"
+		"multiline_empty_two = \"\"\"\n"
+		"\"\"\"\n"
+		"\n"
+		"# \\ at the end of line trims newlines as well; note that last \\ is followed by\n"
+		"# two spaces, which are ignored.\n"
+		"multiline_empty_three = \"\"\"\\\n"
+		"    \"\"\"\n"
+		"multiline_empty_four = \"\"\"\\\n"
+		"   \\\n"
+		"   \\  \n"
+		"   \"\"\"\n"
+		"\n"
+		"equivalent_one = \"The quick brown fox jumps over the lazy dog.\"\n"
+		"equivalent_two = \"\"\"\n"
+		"The quick brown \\\n"
+		"\n"
+		"\n"
+		"  fox jumps over \\\n"
+		"    the lazy dog.\"\"\"\n"
+		"\n"
+		"equivalent_three = \"\"\"\\\n"
+		"       The quick brown \\\n"
+		"       fox jumps over \\\n"
+		"       the lazy dog.\\\n"
+		"       \"\"\"\n"
+		"\n"
+		"whitespace-after-bs = \"\"\"\\\n"
+		"       The quick brown \\\n"
+		"       fox jumps over \\   \n"
+		"       the lazy dog.\\	\n"
+		"       \"\"\"\n"
+		"\n"
+		"no-space = \"\"\"a\\\n"
+		"    b\"\"\"\n"
+		"\n"
+		"# Has tab character.\n"
+		"keep-ws-before = \"\"\"a   	\\\n"
+		"   b\"\"\"\n"
+		"\n"
+		"escape-bs-1 = \"\"\"a \\\\\n"
+		"b\"\"\"\n"
+		"\n"
+		"escape-bs-2 = \"\"\"a \\\\\\\n"
+		"b\"\"\"\n"
+		"\n"
+		"escape-bs-3 = \"\"\"a \\\\\\\\\n"
+		"  b\"\"\""sv;
 	static constexpr auto string_nl			   = R"(nl_mid = "val\nue"
 nl_end = """value\n"""
 
 lit_nl_end = '''value\n'''
 lit_nl_mid = 'val\nue'
 lit_nl_uni = 'val\ue')"sv;
-	static constexpr auto string_raw_multiline = R"(oneline = '''This string has a ' quote character.'''
+	static constexpr auto string_raw_multiline = R"(# Single ' should be allowed.
+oneline = '''This string has a ' quote character.'''
+
+# A newline immediately following the opening delimiter will be trimmed.
 firstnl = '''
 This string has a ' quote character.'''
+
+# All other whitespace and newline characters remain intact.
 multiline = '''
 This string
 has ' a quote character
@@ -597,13 +629,13 @@ last_name = "Springsteen")"sv;
 	static constexpr auto table_with_literal_string = R"(['a']
 [a.'"b"']
 [a.'"b"'.c]
-answer = 42)"sv;
+answer = 42 )"sv;
 	static constexpr auto table_with_pound			= R"(["key#group"]
 answer = 42)"sv;
 	static constexpr auto table_with_single_quotes	= R"(['a']
 [a.'b']
 [a.'b'.c]
-answer = 42)"sv;
+answer = 42 )"sv;
 	static constexpr auto table_without_super		= R"(# [x] you
 # [x.y] don't
 # [x.y.z] need these
@@ -967,7 +999,8 @@ TEST_CASE("conformance - burntsushi/valid")
 								   { R"(group)"sv,
 									 toml::table{
 										 { R"(answer)"sv, 42 },
-										 { R"(d)"sv, toml::date_time{ { 1979, 5, 27 }, { 7, 32, 12 }, { -7, 0 } } },
+										 { R"(dt)"sv, toml::date_time{ { 1979, 5, 27 }, { 7, 32, 12 }, { -7, 0 } } },
+										 { R"(d)"sv, toml::date{ 1979, 5, 27 } },
 										 { R"(more)"sv,
 										   toml::array{
 											   42,
@@ -975,6 +1008,14 @@ TEST_CASE("conformance - burntsushi/valid")
 										   } },
 									 } },
 							   };
+							   REQUIRE(tbl == expected);
+						   });
+
+	parsing_should_succeed(FILE_LINE_ARGS,
+						   comment_noeol,
+						   [](toml::table&& tbl) // comment-noeol
+						   {
+							   const auto expected = toml::table{};
 							   REQUIRE(tbl == expected);
 						   });
 
@@ -1084,9 +1125,9 @@ TEST_CASE("conformance - burntsushi/valid")
 		[](toml::table&& tbl) // datetime-milliseconds
 		{
 			const auto expected = toml::table{
-				{ R"(utc1)"sv, toml::date_time{ { 1987, 7, 5 }, { 17, 45, 56, 123456000 }, { 0, 0 } } },
+				{ R"(utc1)"sv, toml::date_time{ { 1987, 7, 5 }, { 17, 45, 56, 123400000 }, { 0, 0 } } },
 				{ R"(utc2)"sv, toml::date_time{ { 1987, 7, 5 }, { 17, 45, 56, 600000000 }, { 0, 0 } } },
-				{ R"(wita1)"sv, toml::date_time{ { 1987, 7, 5 }, { 17, 45, 56, 123456000 }, { 8, 0 } } },
+				{ R"(wita1)"sv, toml::date_time{ { 1987, 7, 5 }, { 17, 45, 56, 123400000 }, { 8, 0 } } },
 				{ R"(wita2)"sv, toml::date_time{ { 1987, 7, 5 }, { 17, 45, 56, 600000000 }, { 8, 0 } } },
 			};
 			REQUIRE(tbl == expected);
@@ -1726,7 +1767,7 @@ another line)"sv },
 									 toml::table{
 										 { R"(À)"sv, toml::table{} },
 									 } },
-								   { R"(backsp)"sv, toml::table{} },
+								   { "backsp\x08\x08"sv, toml::table{} },
 								   { R"(À)"sv, R"(latin capital letter A with grave)"sv },
 							   };
 							   REQUIRE(tbl == expected);
@@ -2092,6 +2133,39 @@ another line)"sv },
 						   {
 							   const auto expected = toml::table{
 								   { R"(answer)"sv, R"(\x64)"sv },
+							   };
+							   REQUIRE(tbl == expected);
+						   });
+
+	parsing_should_succeed(FILE_LINE_ARGS,
+						   string_escapes,
+						   [](toml::table&& tbl) // string-escapes
+						   {
+							   const auto expected = toml::table{
+								   { R"(backslash)"sv, R"(This string has a \ backslash character.)"sv },
+								   { R"(backspace)"sv, "This string has a \x08 backspace character."sv },
+								   { R"(carriage)"sv, "This string has a \r carriage return character."sv },
+								   { R"(delete)"sv, "This string has a \x7F delete control code."sv },
+								   { R"(formfeed)"sv, "This string has a \f form feed character."sv },
+								   { R"(newline)"sv, R"(This string has a 
+ new line character.)"sv },
+								   { R"(notunicode1)"sv, R"(This string does not have a unicode \u escape.)"sv },
+								   { R"(notunicode2)"sv, R"(This string does not have a unicode \u escape.)"sv },
+								   { R"(notunicode3)"sv, R"(This string does not have a unicode \u0075 escape.)"sv },
+								   { R"(notunicode4)"sv, R"(This string does not have a unicode \u escape.)"sv },
+								   { R"(quote)"sv, R"(This string has a " quote character.)"sv },
+								   { R"(tab)"sv, R"(This string has a 	 tab character.)"sv },
+								   { R"(unitseparator)"sv, "This string has a \x1F unit separator control code."sv },
+							   };
+							   REQUIRE(tbl == expected);
+						   });
+
+	parsing_should_succeed(FILE_LINE_ARGS,
+						   string_multiline_escaped_crlf,
+						   [](toml::table&& tbl) // string-multiline-escaped-crlf
+						   {
+							   const auto expected = toml::table{
+								   { R"(0)"sv, ""sv },
 							   };
 							   REQUIRE(tbl == expected);
 						   });

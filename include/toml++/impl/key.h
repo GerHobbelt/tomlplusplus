@@ -35,6 +35,12 @@ TOML_NAMESPACE_START
 		source_region source_;
 
 	  public:
+		/// A const iterator for iterating over the characters in the key.
+		using const_iterator = const char*;
+
+		/// A const iterator for iterating over the characters in the key.
+		using iterator = const_iterator;
+
 		/// \brief	Default constructor.
 		TOML_NODISCARD_CTOR
 		key() noexcept = default;
@@ -287,6 +293,25 @@ TOML_NAMESPACE_START
 
 		/// @}
 
+		/// \name Iterators
+		/// @{
+
+		/// \brief Returns an iterator to the first character in the key's backing string.
+		TOML_PURE_INLINE_GETTER
+		const_iterator begin() const noexcept
+		{
+			return key_.data();
+		}
+
+		/// \brief Returns an iterator to one-past-the-last character in the key's backing string.
+		TOML_PURE_INLINE_GETTER
+		const_iterator end() const noexcept
+		{
+			return key_.data() + key_.length();
+		}
+
+		/// @}
+
 		/// \brief	Prints the key's underlying string out to the stream.
 		friend std::ostream& operator<<(std::ostream& lhs, const key& rhs)
 		{
@@ -294,19 +319,17 @@ TOML_NAMESPACE_START
 			return lhs;
 		}
 	};
+
+	/// \brief	Metafunction for determining if a type is, or is a reference to, a toml::key.
+	template <typename T>
+	inline constexpr bool is_key = std::is_same_v<impl::remove_cvref<T>, toml::key>;
+
+	/// \brief	Metafunction for determining if a type is, or is a reference to, a toml::key,
+	///			or is implicitly or explicitly convertible to one.
+	template <typename T>
+	inline constexpr bool is_key_or_convertible =
+		is_key<T> || std::is_constructible_v<toml::key, T> || std::is_convertible_v<T, toml::key>;
 }
 TOML_NAMESPACE_END;
-
-/// \cond
-TOML_IMPL_NAMESPACE_START
-{
-	template <typename T>
-	inline constexpr bool is_key = std::is_same_v<remove_cvref<T>, toml::key>;
-
-	template <typename T>
-	inline constexpr bool is_key_or_convertible = is_key<T> || std::is_constructible_v<toml::key, T>;
-}
-TOML_IMPL_NAMESPACE_END;
-/// \endcond
 
 #include "header_end.h"

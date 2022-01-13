@@ -3,7 +3,7 @@
 <!--
 template:
 
-## [vX.X.X](https://github.com/osgenic/stim/releases/tag/vX.X.X) - YYYY-MM-DD
+## [vX.X.X](https://github.com/marzer/tomlplusplus/releases/tag/vX.X.X) - YYYY-MM-DD
 
 #### Fixes:
 #### Additions:
@@ -15,52 +15,62 @@ template:
 
 
 
-## Unreleased
+## [v3.0.0](https://github.com/marzer/tomlplusplus/releases/tag/v3.0.0) - 2022-01-11
 
-This release will be a major version bump, so it's ABI breaks all around. Any API changes that might necessitate
-code changes at callsites or in build systems are indicated with ⚠&#xFE0F;.
+
+This release will be a major version bump, so it's ABI breaks all around.
+Any changes that are likely to cause migration issues (API changes, build system breakage, etc.) are indicated with ⚠&#xFE0F;.
 
 #### Fixes:
-- ⚠&#xFE0F; fixed incorrect `noexcept` specifications on many functions
 - ⚠&#xFE0F; fixed `toml::table` init-list constructor requiring double-brackets
+- ⚠&#xFE0F; fixed `TOML_API` + extern templates causing linker errors in some circumstances
+- ⚠&#xFE0F; fixed incorrect `noexcept` specifications on many functions
+- ⚠&#xFE0F; fixed missing `TOML_API` on some interfaces
 - fixed `toml::json_formatter` not formatting inf and nan incorrectly
-- fixed `TOML_API` + extern templates causing linker errors in some circumstances
+- fixed a number of spec conformance issues (#127, #128, #129, #130, #131, #132, #135) (@moorereason)
 - fixed an illegal table redefinition edge case (#112) (@python36)
 - fixed documentation issues
+- fixed GCC bug causing memory leak during parse failures (#123, #124) (@rsmmr, @ronalabraham)
+- fixed incorrect handling of vertical whitespace in keys when printing TOML to streams
 - fixed incorrect source position in redefinition error messages
-- fixed missing `#include <initializer_list>`
-- fixed missing `#include <utility>`
-- fixed missing `TOML_API` on interfaces
+- fixed missing includes `<initializer_list>`, `<utility>`
 - fixed parser not correctly round-tripping the format of binary and octal integers in some cases
+- fixed some incorrect unicode scalar sequence transformations (#125)
 - fixed strong exception guarantee edge-cases in `toml::table` and `toml::array`
 
 #### Additions:
-- added `operator->` to `toml::value` for class types
-- added `parse_benchmark` example
-- added `toml::array::at()` (same semantics as `std::vector::at()`)
-- added `toml::array::prune()`
-- added `toml::array::replace()` (#109) (@LebJe)
-- added `toml::array::resize()` param `default_init_flags`
-- added `toml::format_flags::allow_binary_integers`
-- added `toml::format_flags::allow_hexadecimal_integers`
-- added `toml::format_flags::allow_octal_integers`
-- added `toml::format_flags::allow_real_tabs_in_strings`
-- added `toml::format_flags::indent_array_elements`
-- added `toml::format_flags::indent_sub_tables`
-- added `toml::format_flags::quote_infinities_and_nans`
-- added `toml::key` - provides a facility to access the source_regions of parsed keys (#82) (@vaartis)
-- added `toml::table::at()` (same semantics as `std::map::at()`)
-- added `toml::table::emplace_hint()` (same semantics as `std::map::emplace_hint()`)
-- added `toml::table::lower_bound()` (same semantics as `std::map::lower_bound()`)
-- added `toml::table::prune()`
-- added `toml::value` copy+move constructor overloads with flags override
-- added `toml::yaml_formatter`
-- added `TOML_ENABLE_FORMATTERS` option
-- added clang's enum annotation attributes to all enums
-- added formatter indentation flags (#120) (@W4RH4WK)
-- added magic `toml::value_flags` constant `toml::preserve_source_value_flags`
-- added support for Unicode 14.0
 - added value flags to array + table insert methods (#44) (@levicki)
+- added support for Unicode 14.0
+- added support for ref categories and cv-qualifiers in `toml::node::ref()`
+- added magic `toml::value_flags` constant `toml::preserve_source_value_flags`
+- added clang's enum annotation attributes to all enums
+- added `TOML_ENABLE_FORMATTERS` option
+- added `toml::yaml_formatter`
+- added `toml::value` copy+move constructor overloads with flags override
+- added `toml::table::prune()`
+- added `toml::table::lower_bound()` (same semantics as `std::map::lower_bound()`)
+- added `toml::table::emplace_hint()` (same semantics as `std::map::emplace_hint()`)
+- added `toml::table::at()` (same semantics as `std::map::at()`)
+- added `toml::node_view::operator==`
+- added `toml::key` - provides a facility to access the source_regions of parsed keys (#82) (@vaartis)
+- added `toml::is_key<>` and toml::is_key_or_convertible<>` metafunctions
+- added `toml::format_flags::relaxed_float_precision` (#89) (@vaartis)
+- added `toml::format_flags::quote_infinities_and_nans`
+- added `toml::format_flags::indent_sub_tables` (#120) (@W4RH4WK)
+- added `toml::format_flags::indent_array_elements` (#120) (@W4RH4WK)
+- added `toml::format_flags::allow_unicode_strings`
+- added `toml::format_flags::allow_real_tabs_in_strings`
+- added `toml::format_flags::allow_octal_integers`
+- added `toml::format_flags::allow_hexadecimal_integers`
+- added `toml::format_flags::allow_binary_integers`
+- added `toml::date_time` converting constructors from `toml::date` and `toml::time`
+- added `toml::at_path()`, `toml::node::at_path()` and `toml::node_view::at_path()` for qualified path-based lookups (#118) (@ben-crowhurst)
+- added `toml::array::resize()` param `default_init_flags`
+- added `toml::array::replace()` (#109) (@LebJe)
+- added `toml::array::prune()`
+- added `toml::array::at()` (same semantics as `std::vector::at()`)
+- added `parse_benchmark` example
+- added `operator->` to `toml::value` for class types
 
 #### Changes:
 - ⚠&#xFE0F; `toml::format_flags` is now backed by `uint64_t` (was previously `uint8_t`)
@@ -72,8 +82,8 @@ code changes at callsites or in build systems are indicated with ⚠&#xFE0F;.
 - ⚠&#xFE0F; renamed `TOML_PARSER` option to `TOML_ENABLE_PARSER` (`TOML_PARSER` will continue to work but is deprecated)
 - ⚠&#xFE0F; renamed `TOML_UNRELEASED_FEATURES` to `TOML_ENABLE_UNRELEASED_FEATURES` (`TOML_UNRELEASED_FEATURES` will continue to work but is deprecated)
 - ⚠&#xFE0F; renamed `TOML_WINDOWS_COMPAT` to `TOML_ENABLE_WINDOWS_COMPAT` (`TOML_WINDOWS_COMPAT` will continue to work but is deprecated)
-- `toml::node::ref()` now supports explicit ref categories and cv-qualifiers
 - applied clang-format to all the things 🎉&#xFE0F;
+- exposed `TOML_NAMESPACE_START` and `TOML_NAMESPACE_END` macros to help with ADL specialization scenarios
 - improved performance of parser
 - made date/time constructors accept any integral types
 - moved all implementation headers to `/impl`
@@ -83,7 +93,7 @@ code changes at callsites or in build systems are indicated with ⚠&#xFE0F;.
 #### Removals:
 - ⚠&#xFE0F; removed `toml::format_flags::allow_value_format_flags`
 - ⚠&#xFE0F; removed `TOML_LARGE_FILES` (it is now default - explicitly setting `TOML_LARGE_FILES` to `0` will invoke an `#error`)
-- removed unnecessary template machinery (esp. where ostreams were involved)
+- ⚠&#xFE0F; removed unnecessary template machinery (esp. where ostreams were involved)
 - removed unnecessary uses of `final`
 
 #### Build system:
@@ -95,7 +105,7 @@ code changes at callsites or in build systems are indicated with ⚠&#xFE0F;.
 
 
 
-## [v2.5.0](https://github.com/osgenic/stim/releases/tag/v2.5.0) - 2021-07-11
+## [v2.5.0](https://github.com/marzer/tomlplusplus/releases/tag/v2.5.0) - 2021-07-11
 
 #### Fixes:
 - fixed linkage error with windows compat mode 
@@ -116,7 +126,7 @@ code changes at callsites or in build systems are indicated with ⚠&#xFE0F;.
 
 
 
-## [v2.4.0](https://github.com/osgenic/stim/releases/tag/v2.4.0) - 2021-05-19
+## [v2.4.0](https://github.com/marzer/tomlplusplus/releases/tag/v2.4.0) - 2021-05-19
 
 #### Fixes:
 - fixed `node::value()` not retrieving inf and nan correctly
@@ -144,7 +154,7 @@ code changes at callsites or in build systems are indicated with ⚠&#xFE0F;.
 
 
 
-## [v2.3.0](https://github.com/osgenic/stim/releases/tag/v2.3.0) - 2020-12-29
+## [v2.3.0](https://github.com/marzer/tomlplusplus/releases/tag/v2.3.0) - 2020-12-29
 
 #### Fixes:
 - fixed compiler errors caused by `<charconv>` with Apple-flavoured clang
@@ -160,7 +170,7 @@ code changes at callsites or in build systems are indicated with ⚠&#xFE0F;.
 
 
 
-## [v2.2.0](https://github.com/osgenic/stim/releases/tag/v2.2.0) - 2020-08-09
+## [v2.2.0](https://github.com/marzer/tomlplusplus/releases/tag/v2.2.0) - 2020-08-09
 
 #### Fixes:
 - fixed some issues building with VS2017 (#55) (@sobczyk)
@@ -188,7 +198,7 @@ code changes at callsites or in build systems are indicated with ⚠&#xFE0F;.
 
 
 
-## [v2.1.0](https://github.com/osgenic/stim/releases/tag/v2.1.0) - 2020-07-11
+## [v2.1.0](https://github.com/marzer/tomlplusplus/releases/tag/v2.1.0) - 2020-07-11
 
 #### Fixes:
 - fixed inconsistent emission of leading/trailing newlines when writing a table to an ostream (#48) (@levicki)
@@ -215,7 +225,7 @@ code changes at callsites or in build systems are indicated with ⚠&#xFE0F;.
 
 
 
-## [v2.0.0](https://github.com/osgenic/stim/releases/tag/v2.0.0) - 2020-07-20
+## [v2.0.0](https://github.com/marzer/tomlplusplus/releases/tag/v2.0.0) - 2020-07-20
 
 This release contains a fairly significant number of 'quality of life' improvements, yay! But also necessitates an ABI
 break (hence the version number bump). Changes that might block a migration are annotated with ⚠&#xFE0F;.
@@ -258,7 +268,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v1.3.3](https://github.com/osgenic/stim/releases/tag/v1.3.3) - 2020-06-29
+## [v1.3.3](https://github.com/marzer/tomlplusplus/releases/tag/v1.3.3) - 2020-06-29
 
 #### Fixes:
 - fixed some minor TOML spec conformance bugs
@@ -278,7 +288,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v1.3.2](https://github.com/osgenic/stim/releases/tag/v1.3.2) - 2020-06-19
+## [v1.3.2](https://github.com/marzer/tomlplusplus/releases/tag/v1.3.2) - 2020-06-19
 
 #### Fixes:
 - fixed single-digit negative integers parsing as positive
@@ -292,7 +302,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v1.3.0](https://github.com/osgenic/stim/releases/tag/v1.3.0) - 2020-06-02
+## [v1.3.0](https://github.com/marzer/tomlplusplus/releases/tag/v1.3.0) - 2020-06-02
 
 #### Fixes:
 - fixed `formatter::print_inline()` causing compilation failures in DLL builds
@@ -311,7 +321,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v1.2.5](https://github.com/osgenic/stim/releases/tag/v1.2.5) - 2020-04-24
+## [v1.2.5](https://github.com/marzer/tomlplusplus/releases/tag/v1.2.5) - 2020-04-24
 
 #### Fixes:
 - fixed some multi-line string parsing issues
@@ -330,7 +340,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v1.2.3](https://github.com/osgenic/stim/releases/tag/v1.2.3) - 2020-04-11
+## [v1.2.3](https://github.com/marzer/tomlplusplus/releases/tag/v1.2.3) - 2020-04-11
 
 #### Fixes:
 - fixed printing of inf and nan
@@ -351,7 +361,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v1.2.0](https://github.com/osgenic/stim/releases/tag/v1.2.0) - 2020-04-07
+## [v1.2.0](https://github.com/marzer/tomlplusplus/releases/tag/v1.2.0) - 2020-04-07
 
 #### Fixes:
 - fixed some parsing and printing ops being locale-dependent
@@ -368,7 +378,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v1.1.0](https://github.com/osgenic/stim/releases/tag/v1.1.0) - 2020-04-03
+## [v1.1.0](https://github.com/marzer/tomlplusplus/releases/tag/v1.1.0) - 2020-04-03
 
 #### Fixes:
 - fixed some parser error paths not returning early enough `TOML_EXCEPTIONS=0` 
@@ -385,7 +395,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v1.0.0](https://github.com/osgenic/stim/releases/tag/1.0.0) - 2020-03-28
+## [v1.0.0](https://github.com/marzer/tomlplusplus/releases/tag/1.0.0) - 2020-03-28
 
 #### Fixes:
 - fixed minor documentation issues
@@ -395,7 +405,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v0.6.0](https://github.com/osgenic/stim/releases/tag/v0.6.0) - 2020-03-24
+## [v0.6.0](https://github.com/marzer/tomlplusplus/releases/tag/v0.6.0) - 2020-03-24
 
 #### Fixes:
 - fixed minor preprocessor/macro issues
@@ -407,7 +417,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v0.5.0](https://github.com/osgenic/stim/releases/tag/v0.5.0) - 2020-03-18
+## [v0.5.0](https://github.com/marzer/tomlplusplus/releases/tag/v0.5.0) - 2020-03-18
 
 #### Fixes:
 - fixed crash when reaching EOF while parsing a string when exceptions are disabled
@@ -425,7 +435,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v0.4.3](https://github.com/osgenic/stim/releases/tag/v0.4.3) - 2020-03-10
+## [v0.4.3](https://github.com/marzer/tomlplusplus/releases/tag/v0.4.3) - 2020-03-10
 
 #### Fixes:
 - fixed ICE in VS2019 when using `/std:c++17` instead of `/std:c++latest
@@ -438,7 +448,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v0.4.0](https://github.com/osgenic/stim/releases/tag/v0.4.0) - 2020-03-05
+## [v0.4.0](https://github.com/marzer/tomlplusplus/releases/tag/v0.4.0) - 2020-03-05
 
 #### Fixes:
 - fixed `parse_file()` failing to compile with plain string literals
@@ -452,7 +462,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v0.3.0](https://github.com/osgenic/stim/releases/tag/v0.3.0) - 2020-03-01
+## [v0.3.0](https://github.com/marzer/tomlplusplus/releases/tag/v0.3.0) - 2020-03-01
 
 #### Fixes:
 - fixed some pedantic clang warnings
@@ -470,7 +480,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v0.2.1](https://github.com/osgenic/stim/releases/tag/v0.2.1) - 2020-02-26
+## [v0.2.1](https://github.com/marzer/tomlplusplus/releases/tag/v0.2.1) - 2020-02-26
 
 #### Fixes:
 - fixed minor printing bug in `operator<<(ostream, source_position)`
@@ -484,7 +494,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v0.2.0](https://github.com/osgenic/stim/releases/tag/v0.2.0) - 2020-02-23
+## [v0.2.0](https://github.com/marzer/tomlplusplus/releases/tag/v0.2.0) - 2020-02-23
 
 #### Fixes:
 - fixed truncation of floating-point values when using ostreams
@@ -501,7 +511,7 @@ break (hence the version number bump). Changes that might block a migration are 
 
 
 
-## [v0.1.0](https://github.com/osgenic/stim/releases/tag/v0.1.0) - 2020-02-20
+## [v0.1.0](https://github.com/marzer/tomlplusplus/releases/tag/v0.1.0) - 2020-02-20
 
 - First public release, yay! 🎉&#xFE0F;
 

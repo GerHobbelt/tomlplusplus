@@ -16,10 +16,18 @@ TOML_PUSH_WARNINGS;
 TOML_DISABLE_SPAM_WARNINGS;
 TOML_DISABLE_SWITCH_WARNINGS;
 TOML_DISABLE_SUGGEST_ATTR_WARNINGS;
+
+// misc warning false-positives
 #if TOML_MSVC
-#pragma warning(disable : 5031) // #pragma warning(pop): likely mismatch (false-positive)
-#elif TOML_CLANG && !TOML_HEADER_ONLY && TOML_IMPLEMENTATION
-#pragma clang diagnostic ignored "-Wheader-hygiene" // false-positive
+#pragma warning(disable : 5031) // #pragma warning(pop): likely mismatch
+#elif TOML_CLANG
+#pragma clang diagnostic ignored "-Wheader-hygiene"
+#if TOML_CLANG >= 12
+#pragma clang diagnostic ignored "-Wc++20-extensions"
+#endif
+#if TOML_CLANG == 13
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 #endif
 
 #include "impl/std_new.h"
@@ -29,6 +37,7 @@ TOML_DISABLE_SUGGEST_ATTR_WARNINGS;
 #include "impl/print_to_stream.h"
 #include "impl/source_region.h"
 #include "impl/date_time.h"
+#include "impl/at_path.h"
 #include "impl/node.h"
 #include "impl/node_view.h"
 #include "impl/value.h"
@@ -36,7 +45,7 @@ TOML_DISABLE_SUGGEST_ATTR_WARNINGS;
 #include "impl/array.h"
 #include "impl/key.h"
 #include "impl/table.h"
-#include "impl/utf8.h"
+#include "impl/unicode.h"
 #include "impl/parse_error.h"
 #include "impl/parse_result.h"
 #include "impl/parser.h"
@@ -51,9 +60,11 @@ TOML_DISABLE_SUGGEST_ATTR_WARNINGS;
 #include "impl/print_to_stream.inl"
 #include "impl/node.inl"
 #include "impl/node_view.inl"
+#include "impl/at_path.inl"
 #include "impl/value.inl"
 #include "impl/array.inl"
 #include "impl/table.inl"
+#include "impl/unicode.inl"
 #include "impl/parser.inl"
 #include "impl/formatter.inl"
 #include "impl/toml_formatter.inl"
@@ -85,11 +96,11 @@ TOML_POP_WARNINGS;
 #undef TOML_CLOSED_ENUM
 #undef TOML_CLOSED_FLAGS_ENUM
 #undef TOML_COMPILER_EXCEPTIONS
-#undef TOML_CONCAT
-#undef TOML_CONCAT_1
 #undef TOML_CONST_GETTER
 #undef TOML_CONST_INLINE_GETTER
 #undef TOML_CONSTRAINED_TEMPLATE
+#undef TOML_CPP_VERSION
+#undef TOML_DELETE_DEFAULTS
 #undef TOML_DISABLE_ARITHMETIC_WARNINGS
 #undef TOML_DISABLE_CODE_ANALYSIS_WARNINGS
 #undef TOML_DISABLE_SPAM_WARNINGS
@@ -135,13 +146,12 @@ TOML_POP_WARNINGS;
 #undef TOML_LAUNDER
 #undef TOML_LIFETIME_HOOKS
 #undef TOML_LIKELY
+#undef TOML_LIKELY_CASE
 #undef TOML_MAKE_FLAGS
 #undef TOML_MAKE_FLAGS_
 #undef TOML_MAKE_VERSION
 #undef TOML_MSVC
 #undef TOML_NAMESPACE
-#undef TOML_NAMESPACE_END
-#undef TOML_NAMESPACE_START
 #undef TOML_NEVER_INLINE
 #undef TOML_NODISCARD
 #undef TOML_NODISCARD_CTOR
@@ -171,6 +181,7 @@ TOML_POP_WARNINGS;
 #undef TOML_TRIVIAL_ABI
 #undef TOML_UINT128
 #undef TOML_UNLIKELY
+#undef TOML_UNLIKELY_CASE
 #undef TOML_UNREACHABLE
 #undef TOML_UNUSED
 #endif

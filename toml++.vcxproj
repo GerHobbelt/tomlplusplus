@@ -37,6 +37,7 @@
   <ItemGroup>
     <ClInclude Include="include\toml++\impl\array.h" />
     <ClInclude Include="include\toml++\impl\array.inl" />
+    <ClInclude Include="include\toml++\impl\at_path.h" />
     <ClInclude Include="include\toml++\impl\date_time.h" />
     <ClInclude Include="include\toml++\impl\key.h" />
     <ClInclude Include="include\toml++\impl\simd.h" />
@@ -72,7 +73,7 @@
     <ClInclude Include="include\toml++\impl\std_vector.h" />
     <ClInclude Include="include\toml++\impl\table.h" />
     <ClInclude Include="include\toml++\impl\table.inl" />
-    <ClInclude Include="include\toml++\impl\utf8.h" />
+    <ClInclude Include="include\toml++\impl\unicode.h" />
     <ClInclude Include="include\toml++\impl\value.h" />
     <ClInclude Include="include\toml++\impl\value.inl" />
     <ClInclude Include="include\toml++\impl\value_extern.inl" />
@@ -89,12 +90,15 @@
     <None Include=".github\ISSUE_TEMPLATE\bug_report.md" />
     <None Include=".github\ISSUE_TEMPLATE\config.yml" />
     <None Include=".github\ISSUE_TEMPLATE\feature_request.md" />
+    <None Include=".github\ISSUE_TEMPLATE\spec_bug_report.md" />
     <None Include=".github\pull_request_template.md" />
     <None Include=".gitignore" />
     <None Include=".runsettings" />
     <None Include="CHANGELOG.md" />
     <None Include="CODE_OF_CONDUCT.md" />
     <None Include="CONTRIBUTING.md" />
+    <None Include="include\toml++\impl\at_path.inl" />
+    <None Include="include\toml++\impl\unicode.inl" />
     <None Include="include\toml++\impl\node_view_extern.inl" />
     <None Include="include\toml++\impl\yaml_formatter.inl" />
     <None Include="LICENSE" />

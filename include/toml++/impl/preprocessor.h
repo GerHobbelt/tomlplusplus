@@ -347,6 +347,19 @@
 #endif
 
 //#====================================================================================================================
+//# CPP VERSION
+//#====================================================================================================================
+
+#ifndef TOML_CPP_VERSION
+	#define TOML_CPP_VERSION __cplusplus
+#endif
+#if TOML_CPP_VERSION < 201103L
+	#error toml++ requires C++17 or higher. For a TOML library supporting pre-C++11 see https://github.com/ToruNiina/Boost.toml
+#elif TOML_CPP_VERSION < 201703L
+	#error toml++ requires C++17 or higher. For a TOML library supporting C++11 see https://github.com/ToruNiina/toml11
+#endif
+
+//#====================================================================================================================
 //# USER CONFIGURATION
 //#====================================================================================================================
 
@@ -453,9 +466,33 @@
 	#define TOML_HAS_CUSTOM_OPTIONAL_TYPE 0
 #endif
 
+// exceptions (compiler support)
+#ifndef TOML_COMPILER_EXCEPTIONS
+	#if defined(__EXCEPTIONS) || defined(__cpp_exceptions)
+		#define TOML_COMPILER_EXCEPTIONS 1
+	#else
+		#define TOML_COMPILER_EXCEPTIONS 0
+	#endif
+#endif
+
+// exceptions (library use)
+#if TOML_COMPILER_EXCEPTIONS
+	#if !defined(TOML_EXCEPTIONS) || (defined(TOML_EXCEPTIONS) && TOML_EXCEPTIONS)
+		#undef TOML_EXCEPTIONS
+		#define TOML_EXCEPTIONS 1
+	#endif
+#else
+	#if defined(TOML_EXCEPTIONS) && TOML_EXCEPTIONS
+		#error TOML_EXCEPTIONS was explicitly enabled but exceptions are disabled/unsupported by the compiler.
+	#endif
+	#undef TOML_EXCEPTIONS
+	#define TOML_EXCEPTIONS	0
+#endif
+
 #ifndef TOML_UNDEF_MACROS
 	#define TOML_UNDEF_MACROS 1
 #endif
+
 
 #ifndef TOML_MAX_NESTED_VALUES
 	#define TOML_MAX_NESTED_VALUES 256
@@ -479,42 +516,12 @@
 //# ATTRIBUTES, UTILITY MACROS ETC
 //#====================================================================================================================
 
-#ifndef TOML_CPP_VERSION
-	#define TOML_CPP_VERSION __cplusplus
-#endif
-#if TOML_CPP_VERSION < 201103L
-	#error toml++ requires C++17 or higher. For a TOML library supporting pre-C++11 see https://github.com/ToruNiina/Boost.toml
-#elif TOML_CPP_VERSION < 201703L
-	#error toml++ requires C++17 or higher. For a TOML library supporting C++11 see https://github.com/ToruNiina/toml11
-#endif
-#undef TOML_CPP_VERSION
-
-#ifndef TOML_COMPILER_EXCEPTIONS
-	#if defined(__EXCEPTIONS) || defined(__cpp_exceptions)
-		#define TOML_COMPILER_EXCEPTIONS 1
-	#else
-		#define TOML_COMPILER_EXCEPTIONS 0
-	#endif
-#endif
-#if TOML_COMPILER_EXCEPTIONS
-	#if !defined(TOML_EXCEPTIONS) || (defined(TOML_EXCEPTIONS) && TOML_EXCEPTIONS)
-		#undef TOML_EXCEPTIONS
-		#define TOML_EXCEPTIONS 1
-	#endif
-#else
-	#if defined(TOML_EXCEPTIONS) && TOML_EXCEPTIONS
-		#error TOML_EXCEPTIONS was explicitly enabled but exceptions are disabled/unsupported by the compiler.
-	#endif
-	#undef TOML_EXCEPTIONS
-	#define TOML_EXCEPTIONS	0
-#endif
-
-#if TOML_GCC || TOML_CLANG || (TOML_ICC && !TOML_ICC_CL)
+#if !defined(TOML_FLOAT_CHARCONV) && (TOML_GCC || TOML_CLANG || (TOML_ICC && !TOML_ICC_CL))
 	// not supported by any version of GCC or Clang as of 26/11/2020
 	// not supported by any version of ICC on Linux as of 11/01/2021
 	#define TOML_FLOAT_CHARCONV 0
 #endif
-#if defined(__EMSCRIPTEN__) || defined(__APPLE__)
+#if !defined(TOML_INT_CHARCONV) && (defined(__EMSCRIPTEN__) || defined(__APPLE__))
 	// causes link errors on emscripten
 	// causes Mac OS SDK version errors on some versions of Apple Clang
 	#define TOML_INT_CHARCONV 0
@@ -613,18 +620,34 @@
 	#define TOML_HAS_ATTR(...)	0
 #endif
 
-#if !defined(TOML_LIKELY) && TOML_HAS_ATTR(likely) >= 201803
-	#define TOML_LIKELY(...)	(__VA_ARGS__) [[likely]]
+#if TOML_HAS_ATTR(likely) >= 201803
+	#ifndef TOML_LIKELY
+		#define TOML_LIKELY(...)	(__VA_ARGS__) [[likely]]
+	#endif
+	#ifndef TOML_LIKELY_CASE
+		#define TOML_LIKELY_CASE	[[likely]]
+	#endif
 #endif
 #ifndef TOML_LIKELY
 	#define TOML_LIKELY(...)	(__VA_ARGS__)
 #endif
+#ifndef TOML_LIKELY_CASE
+	#define TOML_LIKELY_CASE
+#endif
 
-#if !defined(TOML_UNLIKELY) && TOML_HAS_ATTR(unlikely) >= 201803
-	#define TOML_UNLIKELY(...)	(__VA_ARGS__) [[unlikely]]
+#if TOML_HAS_ATTR(unlikely) >= 201803
+	#ifndef TOML_UNLIKELY
+		#define TOML_UNLIKELY(...)	(__VA_ARGS__) [[unlikely]]
+	#endif
+	#ifndef TOML_UNLIKELY_CASE
+		#define TOML_UNLIKELY_CASE	[[unlikely]]
+	#endif
 #endif
 #ifndef TOML_UNLIKELY
 	#define TOML_UNLIKELY(...)	(__VA_ARGS__)
+#endif
+#ifndef TOML_UNLIKELY_CASE
+	#define TOML_UNLIKELY_CASE
 #endif
 
 #if TOML_HAS_ATTR(nodiscard)
@@ -667,9 +690,7 @@
 #endif
 
 #define TOML_MAKE_FLAGS_(name, op)																	\
-	TOML_NODISCARD																					\
-	TOML_ALWAYS_INLINE																				\
-	TOML_ATTR(const)																				\
+	TOML_CONST_INLINE_GETTER																		\
 	constexpr name operator op(name lhs, name rhs) noexcept											\
 	{																								\
 		using under = std::underlying_type_t<name>;													\
@@ -685,17 +706,13 @@
 	TOML_MAKE_FLAGS_(name, &);																		\
 	TOML_MAKE_FLAGS_(name, |);																		\
 	TOML_MAKE_FLAGS_(name, ^);																		\
-	TOML_NODISCARD																					\
-	TOML_ALWAYS_INLINE																				\
-	TOML_ATTR(const)																				\
+	TOML_CONST_INLINE_GETTER																		\
 	constexpr name operator~(name val) noexcept														\
 	{																								\
 		using under = std::underlying_type_t<name>;													\
 		return static_cast<name>(~static_cast<under>(val));											\
 	}																								\
-	TOML_NODISCARD																					\
-	TOML_ALWAYS_INLINE																				\
-	TOML_ATTR(const)																				\
+	TOML_CONST_INLINE_GETTER																		\
 	constexpr bool operator!(name val) noexcept														\
 	{																								\
 		using under = std::underlying_type_t<name>;													\
@@ -736,6 +753,12 @@
 #endif
 
 #define TOML_UNUSED(...) static_cast<void>(__VA_ARGS__)
+
+#define TOML_DELETE_DEFAULTS(T)                                                                                        \
+	T(const T&) = delete;                                                                                              \
+	T(T&&)		= delete;                                                                                              \
+	T& operator=(const T&) = delete;                                                                                   \
+	T& operator=(T&&) = delete
 
 //======================================================================================================================
 // SFINAE

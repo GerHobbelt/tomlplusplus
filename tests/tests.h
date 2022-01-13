@@ -51,6 +51,9 @@
 
 TOML_DISABLE_SPAM_WARNINGS;
 TOML_DISABLE_ARITHMETIC_WARNINGS;
+#if TOML_CLANG == 13
+#pragma clang diagnostic ignored "-Wreserved-identifier" // false-positive
+#endif
 
 TOML_DISABLE_WARNINGS;
 #include "lib_catch2.h"
@@ -70,7 +73,7 @@ constexpr size_t operator"" _sz(unsigned long long n) noexcept
 	return static_cast<size_t>(n);
 }
 
-#define FILE_LINE_ARGS std::string_view{ __FILE__ }, __LINE__
+#define FILE_LINE_ARGS trim_file_path(std::string_view{ __FILE__ }), __LINE__
 #define BOM_PREFIX	   "\xEF\xBB\xBF"
 
 #if TOML_EXCEPTIONS
@@ -153,6 +156,15 @@ bool parsing_should_fail(std::string_view test_file,
 						 source_index expected_failure_line	  = static_cast<source_index>(-1),
 						 source_index expected_failure_column = static_cast<source_index>(-1));
 
+TOML_PURE_GETTER
+constexpr std::string_view trim_file_path(std::string_view sv) noexcept
+{
+	const auto src = std::min(sv.rfind("\\"sv), sv.rfind("/"sv));
+	if (src != std::string_view::npos)
+		sv = sv.substr(src + 1_sz);
+	return sv;
+}
+
 template <typename T>
 inline bool parse_expected_value(std::string_view test_file,
 								 uint32_t test_line,
@@ -186,9 +198,9 @@ inline bool parse_expected_value(std::string_view test_file,
 			if (!decoder.has_code_point())
 				continue;
 
-			if (impl::is_vertical_whitespace_excl_cr(decoder.codepoint))
+			if (impl::is_ascii_vertical_whitespace(decoder.codepoint))
 			{
-				if (decoder.codepoint != U'\r')
+				if (decoder.codepoint == U'\n')
 				{
 					pos.line++;
 					pos.column = source_index{ 1 };
