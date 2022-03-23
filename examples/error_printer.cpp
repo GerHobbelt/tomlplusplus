@@ -7,9 +7,6 @@
 // failures and printing their results.
 
 #include "examples.h"
-
-#define TOML_EXCEPTIONS					0
-#define TOML_ENABLE_UNRELEASED_FEATURES 0
 #include <toml++/toml.h>
 
 using namespace std::string_view_literals;
@@ -116,6 +113,24 @@ namespace
 
 int main(int argc, const char** argv)
 {
+	const auto parse_and_print_if_error = [](std::string_view str)
+	{
+#if TOML_EXCEPTIONS
+		try
+		{
+			auto result = toml::parse(str);
+			static_cast<void>(result);
+		}
+		catch (const toml::parse_error& err)
+		{
+			std::cout << err << "\n\n"sv;
+		}
+#else
+		if (auto result = toml::parse(str); !result)
+			std::cout << result.error() << "\n\n"sv;
+#endif
+	};
+
 	for (auto str : invalid_parses)
 	{
 		if (str.empty())
@@ -139,13 +154,10 @@ int main(int argc, const char** argv)
 				std::string s(1000u, '[');
 				constexpr auto start = "array = "sv;
 				memcpy(s.data(), start.data(), start.length());
-				result = toml::parse(s);
+				parse_and_print_if_error(s);
 			}
 			else
-				result = toml::parse(str);
-
-			if (!result)
-				std::cout << result.error() << "\n\n"sv;
+				parse_and_print_if_error(str);
 		}
 	}
 	return 0;

@@ -10,6 +10,7 @@
 [submodule "external/Catch2"]
 	path = external/Catch2
 	url = git@github.com:catchorg/Catch2.git
+	branch = v2.x
 [submodule "external/tloptional"]
 	path = external/tloptional
 	url = git@github.com:TartanLlama/optional.git
