@@ -12,6 +12,11 @@ using namespace std::string_view_literals;
 
 static constexpr size_t iterations = 10000;
 
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      toml_parse_benchmark_main(cnt, arr)
+#endif
+
 int main(int argc, char** argv)
 {
 	const auto file_path = std::string(argc > 1 ? std::string_view{ argv[1] } : "benchmark_data.toml"sv);

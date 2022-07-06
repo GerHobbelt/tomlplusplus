@@ -13,7 +13,7 @@ using namespace std::string_view_literals;
 
 
 #if defined(BUILD_MONOLITHIC)
-#define main(cnt, arr)      toml_example_simplee_parser_main(cnt, arr)
+#define main(cnt, arr)      toml_example_simple_parser_main(cnt, arr)
 #endif
 
 int main(int argc, const char** argv)
