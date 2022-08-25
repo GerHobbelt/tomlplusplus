@@ -11,103 +11,108 @@
 TOML_IMPL_NAMESPACE_START
 {
 	// Q: "why does print_to_stream() exist? why not just use ostream::write(), ostream::put() etc?"
-	// A: - I'm supporting C++20's char8_t as well; wrapping streams allows switching string modes transparently.
-	//    - I'm using <charconv> to format numerics. Faster and locale-independent.
+	// A: - I'm using <charconv> to format numerics. Faster and locale-independent.
 	//    - I can (potentially) avoid forcing users to drag in <sstream> and <iomanip>.
 	//    - Strings in C++. Honestly.
 
 	TOML_EXPORTED_FREE_FUNCTION
 	TOML_ATTR(nonnull)
-	void print_to_stream(std::ostream&, const char*, size_t);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const char*, size_t);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, std::string_view);
+	void TOML_CALLCONV print_to_stream(std::ostream&, std::string_view);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const std::string&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const std::string&);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, char);
+	void TOML_CALLCONV print_to_stream(std::ostream&, char);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, int8_t, value_flags = {}, size_t min_digits = 0);
+	void TOML_CALLCONV print_to_stream(std::ostream&, signed char, value_flags = {}, size_t min_digits = 0);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, int16_t, value_flags = {}, size_t min_digits = 0);
+	void TOML_CALLCONV print_to_stream(std::ostream&, signed short, value_flags = {}, size_t min_digits = 0);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, int32_t, value_flags = {}, size_t min_digits = 0);
+	void TOML_CALLCONV print_to_stream(std::ostream&, signed int, value_flags = {}, size_t min_digits = 0);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, int64_t, value_flags = {}, size_t min_digits = 0);
+	void TOML_CALLCONV print_to_stream(std::ostream&, signed long, value_flags = {}, size_t min_digits = 0);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, uint8_t, value_flags = {}, size_t min_digits = 0);
+	void TOML_CALLCONV print_to_stream(std::ostream&, signed long long, value_flags = {}, size_t min_digits = 0);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, uint16_t, value_flags = {}, size_t min_digits = 0);
+	void TOML_CALLCONV print_to_stream(std::ostream&, unsigned char, value_flags = {}, size_t min_digits = 0);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, uint32_t, value_flags = {}, size_t min_digits = 0);
+	void TOML_CALLCONV print_to_stream(std::ostream&, unsigned short, value_flags = {}, size_t min_digits = 0);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, uint64_t, value_flags = {}, size_t min_digits = 0);
+	void TOML_CALLCONV print_to_stream(std::ostream&, unsigned int, value_flags = {}, size_t min_digits = 0);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, float, value_flags = {}, bool relaxed_precision = false);
+	void TOML_CALLCONV print_to_stream(std::ostream&, unsigned long, value_flags = {}, size_t min_digits = 0);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, double, value_flags = {}, bool relaxed_precision = false);
+	void TOML_CALLCONV print_to_stream(std::ostream&, unsigned long long, value_flags = {}, size_t min_digits = 0);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, bool);
+	void TOML_CALLCONV print_to_stream(std::ostream&, float, value_flags = {}, bool relaxed_precision = false);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const toml::date&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, double, value_flags = {}, bool relaxed_precision = false);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const toml::time&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, bool);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const toml::time_offset&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const toml::date&);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const toml::date_time&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const toml::time&);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const source_position&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const toml::time_offset&);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const source_region&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const toml::date_time&);
+
+	TOML_EXPORTED_FREE_FUNCTION
+	void TOML_CALLCONV print_to_stream(std::ostream&, const source_position&);
+
+	TOML_EXPORTED_FREE_FUNCTION
+	void TOML_CALLCONV print_to_stream(std::ostream&, const source_region&);
 
 #if TOML_ENABLE_FORMATTERS
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const array&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const array&);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const table&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const table&);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const value<std::string>&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const value<std::string>&);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const value<int64_t>&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const value<int64_t>&);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const value<double>&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const value<double>&);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const value<bool>&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const value<bool>&);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const value<date>&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const value<date>&);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const value<time>&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const value<time>&);
 
 	TOML_EXPORTED_FREE_FUNCTION
-	void print_to_stream(std::ostream&, const value<date_time>&);
+	void TOML_CALLCONV print_to_stream(std::ostream&, const value<date_time>&);
 
 #endif
 

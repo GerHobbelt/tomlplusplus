@@ -59,7 +59,7 @@ TOML_DISABLE_ARITHMETIC_WARNINGS;
 																											\
 	TOML_SA_LIST_NXT "A non-view type capable of (reasonably) representing a native TOML value type"		\
 	TOML_SA_LIST_BEG "any other integer type"																\
-	TOML_SA_LIST_SEP "any floating-point type >= 32 bits"													\
+	TOML_SA_LIST_SEP "any floating-point type"																\
 	TOML_SA_LIST_END																						\
 																											\
 	TOML_SA_LIST_NXT "An immutable view type not requiring additional temporary storage"					\
@@ -392,14 +392,11 @@ TOML_NAMESPACE_START
 		TOML_PURE_GETTER
 		bool is_homogeneous() const noexcept
 		{
-			using type = impl::unwrap_node<ElemType>;
-			static_assert(
-				std::is_void_v<
-					type> || ((impl::is_native<type> || impl::is_one_of<type, table, array>)&&!impl::is_cvref<type>),
-				"The template type argument of value::is_homogeneous() must be void or one "
-				"of:" TOML_SA_UNWRAPPED_NODE_TYPE_LIST);
+			using type = impl::remove_cvref<impl::unwrap_node<ElemType>>;
+			static_assert(std::is_void_v<type> || toml::is_value<type> || toml::is_container<type>,
+						  "The template type argument of value::is_homogeneous() must be void or one "
+						  "of:" TOML_SA_UNWRAPPED_NODE_TYPE_LIST);
 
-			using type = impl::unwrap_node<ElemType>;
 			if constexpr (std::is_void_v<type>)
 				return true;
 			else
@@ -774,7 +771,7 @@ TOML_NAMESPACE_START
 		/// @{
 
 		/// \brief	Value equality operator.
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		friend bool operator==(const value& lhs, value_arg rhs) noexcept
 		{
 			if constexpr (std::is_same_v<value_type, double>)
@@ -791,56 +788,56 @@ TOML_NAMESPACE_START
 		TOML_ASYMMETRICAL_EQUALITY_OPS(const value&, value_arg, );
 
 		/// \brief	Value less-than operator.
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		friend bool operator<(const value& lhs, value_arg rhs) noexcept
 		{
 			return lhs.val_ < rhs;
 		}
 
 		/// \brief	Value less-than operator.
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		friend bool operator<(value_arg lhs, const value& rhs) noexcept
 		{
 			return lhs < rhs.val_;
 		}
 
 		/// \brief	Value less-than-or-equal-to operator.
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		friend bool operator<=(const value& lhs, value_arg rhs) noexcept
 		{
 			return lhs.val_ <= rhs;
 		}
 
 		/// \brief	Value less-than-or-equal-to operator.
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		friend bool operator<=(value_arg lhs, const value& rhs) noexcept
 		{
 			return lhs <= rhs.val_;
 		}
 
 		/// \brief	Value greater-than operator.
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		friend bool operator>(const value& lhs, value_arg rhs) noexcept
 		{
 			return lhs.val_ > rhs;
 		}
 
 		/// \brief	Value greater-than operator.
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		friend bool operator>(value_arg lhs, const value& rhs) noexcept
 		{
 			return lhs > rhs.val_;
 		}
 
 		/// \brief	Value greater-than-or-equal-to operator.
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		friend bool operator>=(const value& lhs, value_arg rhs) noexcept
 		{
 			return lhs.val_ >= rhs;
 		}
 
 		/// \brief	Value greater-than-or-equal-to operator.
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		friend bool operator>=(value_arg lhs, const value& rhs) noexcept
 		{
 			return lhs >= rhs.val_;
@@ -853,7 +850,7 @@ TOML_NAMESPACE_START
 		///
 		/// \returns	True if the values were of the same type and contained the same value.
 		template <typename T>
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		friend bool operator==(const value& lhs, const value<T>& rhs) noexcept
 		{
 			if constexpr (std::is_same_v<value_type, T>)
@@ -869,7 +866,7 @@ TOML_NAMESPACE_START
 		///
 		/// \returns	True if the values were not of the same type, or did not contain the same value.
 		template <typename T>
-		TOML_NODISCARD
+		TOML_PURE_INLINE_GETTER
 		friend bool operator!=(const value& lhs, const value<T>& rhs) noexcept
 		{
 			return !(lhs == rhs);
@@ -885,7 +882,7 @@ TOML_NAMESPACE_START
 		/// 			\conditional_return{Different value types}
 		///				`lhs.type() < rhs.type()`
 		template <typename T>
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		friend bool operator<(const value& lhs, const value<T>& rhs) noexcept
 		{
 			if constexpr (std::is_same_v<value_type, T>)
@@ -904,7 +901,7 @@ TOML_NAMESPACE_START
 		/// 			\conditional_return{Different value types}
 		///				`lhs.type() <= rhs.type()`
 		template <typename T>
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		friend bool operator<=(const value& lhs, const value<T>& rhs) noexcept
 		{
 			if constexpr (std::is_same_v<value_type, T>)
@@ -923,7 +920,7 @@ TOML_NAMESPACE_START
 		/// 			\conditional_return{Different value types}
 		///				`lhs.type() > rhs.type()`
 		template <typename T>
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		friend bool operator>(const value& lhs, const value<T>& rhs) noexcept
 		{
 			if constexpr (std::is_same_v<value_type, T>)
@@ -942,7 +939,7 @@ TOML_NAMESPACE_START
 		/// 			\conditional_return{Different value types}
 		///				`lhs.type() >= rhs.type()`
 		template <typename T>
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		friend bool operator>=(const value& lhs, const value<T>& rhs) noexcept
 		{
 			if constexpr (std::is_same_v<value_type, T>)
@@ -1211,7 +1208,7 @@ TOML_NAMESPACE_START
 
 				TOML_SA_LIST_NXT "A non-view type capable of (reasonably) representing a native TOML value type"
 				TOML_SA_LIST_BEG "any other integer type"
-				TOML_SA_LIST_SEP "any floating-point type >= 32 bits"
+				TOML_SA_LIST_SEP "any floating-point type"
 				TOML_SA_LIST_END
 
 				TOML_SA_LIST_NXT "A compatible view type"

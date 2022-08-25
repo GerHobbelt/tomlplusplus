@@ -411,13 +411,12 @@ TOML_NAMESPACE_START
 		TOML_PURE_GETTER
 		bool is_homogeneous() const noexcept
 		{
-			using unwrapped_type = impl::unwrap_node<impl::remove_cvref<ElemType>>;
-			static_assert(std::is_void_v<unwrapped_type> //
-							  || (impl::is_native<unwrapped_type> || impl::is_one_of<unwrapped_type, table, array>),
+			using type = impl::remove_cvref<impl::unwrap_node<ElemType>>;
+			static_assert(std::is_void_v<type> || toml::is_value<type> || toml::is_container<type>,
 						  "The template type argument of array::is_homogeneous() must be void or one "
 						  "of:" TOML_SA_UNWRAPPED_NODE_TYPE_LIST);
 
-			return is_homogeneous(impl::node_type_of<unwrapped_type>);
+			return is_homogeneous(impl::node_type_of<type>);
 		}
 		/// \endcond
 
@@ -716,6 +715,10 @@ TOML_NAMESPACE_START
 		{
 			return const_cast<array&>(*this).template get_as<ElemType>(index);
 		}
+
+		/// \cond
+		using node::operator[]; // inherit operator[toml::path]
+		/// \endcond
 
 		/// \brief	Gets a reference to the element at a specific index.
 		TOML_NODISCARD
@@ -1487,11 +1490,13 @@ TOML_NAMESPACE_START
 		template <typename ElemType = void, typename... Args>
 		iterator emplace(const_iterator pos, Args&&... args)
 		{
-			static_assert(!impl::is_cvref<ElemType>, "ElemType may not be const, volatile, or a reference.");
-			using elem_type = std::conditional_t<std::is_void_v<ElemType>, impl::emplaced_type_of<Args&&...>, ElemType>;
+			using raw_elem_type = impl::remove_cvref<ElemType>;
+			using elem_type		= std::conditional_t<std::is_void_v<raw_elem_type>, //
+												 impl::emplaced_type_of<Args&&...>,
+												 raw_elem_type>;
 
-			using type = impl::unwrap_node<elem_type>;
-			static_assert((impl::is_native<type> || impl::is_one_of<type, table, array>)&&!impl::is_cvref<type>,
+			using type = impl::remove_cvref<impl::unwrap_node<elem_type>>;
+			static_assert(impl::is_native<type> || impl::is_one_of<type, table, array>,
 						  "Emplacement type parameter must be one of:" TOML_SA_UNWRAPPED_NODE_TYPE_LIST);
 
 			return iterator{ insert_at(const_vector_iterator{ pos },
@@ -1590,14 +1595,16 @@ TOML_NAMESPACE_START
 		template <typename ElemType = void, typename... Args>
 		decltype(auto) emplace_back(Args&&... args)
 		{
-			static_assert(!impl::is_cvref<ElemType>, "ElemType may not be const, volatile, or a reference.");
-			using elem_type = std::conditional_t<std::is_void_v<ElemType>, impl::emplaced_type_of<Args&&...>, ElemType>;
+			using raw_elem_type = impl::remove_cvref<ElemType>;
+			using elem_type		= std::conditional_t<std::is_void_v<raw_elem_type>, //
+												 impl::emplaced_type_of<Args&&...>,
+												 raw_elem_type>;
 
 			static constexpr auto moving_node_ptr = std::is_same_v<elem_type, impl::node_ptr> //
 												 && sizeof...(Args) == 1u					  //
 												 && impl::first_is_same<impl::node_ptr&&, Args&&...>;
 
-			using unwrapped_type = impl::unwrap_node<elem_type>;
+			using unwrapped_type = impl::remove_cvref<impl::unwrap_node<elem_type>>;
 
 			static_assert(
 				moving_node_ptr										  //
@@ -1625,7 +1632,7 @@ TOML_NAMESPACE_START
 
 		TOML_NODISCARD
 		TOML_EXPORTED_STATIC_FUNCTION
-		static bool equal(const array&, const array&) noexcept;
+		static bool TOML_CALLCONV equal(const array&, const array&) noexcept;
 
 		template <typename T>
 		TOML_NODISCARD
