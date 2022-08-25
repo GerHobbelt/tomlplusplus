@@ -115,6 +115,17 @@ depends: [
 ```
 > ℹ&#xFE0F; _[What is DDS?](https://dds.pizza/)_
 
+### Tipi.build
+
+
+`tomlplusplus` can be easily used in [tipi.build](https://tipi.build) projects by adding the following entry to your `.tipi/deps`:
+
+```json
+{
+    "marzer/tomlplusplus": { }
+}
+```
+
 ### Vcpkg
 ```
 vcpkg install tomlplusplus
@@ -151,8 +162,8 @@ FetchContent_MakeAvailable(tomlplusplus)
 git submodule add --depth 1 https://github.com/marzer/tomlplusplus.git tomlplusplus
 git config -f .gitmodules submodule.tomlplusplus.shallow true
 ```
-> ℹ&#xFE0F; The toml++ repository has some submodules of its own, but **they are only used for testing**!
-> You should not use the `--recursive` option for regular library consumption.
+> ⚠&#xFE0F; The toml++ repository has some submodules of its own, but **they are only used for testing**!
+> You should **not** use the `--recursive` option for regular library consumption.
 
 
 ### Other environments and package managers
