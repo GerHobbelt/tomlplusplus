@@ -104,13 +104,13 @@ You'll find some more code examples in the `examples` directory, and plenty more
 3. `#include <toml++/toml.h>`
 
 ### Conan
-Add `tomlplusplus/3.1.0` to your conanfile.
+Add `tomlplusplus/3.2.0` to your conanfile.
 
 ### DDS
 Add `tomlpp` to your `package.json5`, e.g.:
 ```
 depends: [
-    'tomlpp^3.1.0',
+    'tomlpp^3.2.0',
 ]
 ```
 > ℹ&#xFE0F; _[What is DDS?](https://dds.pizza/)_
@@ -151,7 +151,7 @@ include(FetchContent)
 FetchContent_Declare(
     tomlplusplus
     GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
-    GIT_TAG        v3.1.0
+    GIT_TAG        v3.2.0
 )
 FetchContent_MakeAvailable(tomlplusplus)
 ```
@@ -259,6 +259,7 @@ UTF-8 decoding is performed using a state machine based on Bjoern Hoehrmann's '[
 - **[@bobfang1992](https://github.com/bobfang1992)** - Reported a bug and created a [wrapper in python](https://github.com/bobfang1992/pytomlpp)
 - **[@GiulioRomualdi](https://github.com/GiulioRomualdi)** - Added cmake+meson support
 - **[@jonestristand](https://github.com/jonestristand)** - Designed and implemented the `toml::path`s feature
+- **[@kcsaul](https://github.com/kcsaul)** - Fixed a bug
 - **[@levicki](https://github.com/levicki)** - Helped design some new features
 - **[@moorereason](https://github.com/moorereason)** - Reported a whole bunch of bugs
 - **[@mosra](https://github.com/mosra)** - Created the awesome [m.css] used to generate the API docs
