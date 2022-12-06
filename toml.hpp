@@ -537,6 +537,7 @@
 	__pragma(warning(disable : 4505)) /* unreferenced local function removed */                                        \
 	__pragma(warning(disable : 4514)) /* unreferenced inline function has been removed */                              \
 	__pragma(warning(disable : 4582)) /* constructor is not implicitly called */                                       \
+	__pragma(warning(disable : 4619)) /*  there is no warning number 'XXXX' */                                         \
 	__pragma(warning(disable : 4623)) /* default constructor was implicitly defined as deleted */                      \
 	__pragma(warning(disable : 4625)) /* copy constructor was implicitly defined as deleted */                         \
 	__pragma(warning(disable : 4626)) /* assignment operator was implicitly defined as deleted */                      \
@@ -929,17 +930,51 @@ TOML_ENABLE_WARNINGS;
 	TOML_REQUIRES(condition)
 #define TOML_HIDDEN_CONSTRAINT(condition, ...) TOML_CONSTRAINED_TEMPLATE(condition, __VA_ARGS__)
 
-#if TOML_CLANG
-#if (TOML_ARCH_ARM || TOML_ARCH_X86 || TOML_ARCH_AMD64) && defined(__FLT16_MANT_DIG__)
-#define TOML_FLOAT16 _Float16
-#endif
-#elif TOML_GCC
-/*
+#ifndef TOML_ENABLE_FLOAT16
 
- */
-#if (TOML_ARCH_ARM /*|| TOML_ARCH_X86 || TOML_ARCH_AMD64*/) && defined(__FLT16_MANT_DIG__)
-#define TOML_FLOAT16 _Float16
+#ifdef __FLT16_MANT_DIG__
+#define TOML_FLOAT16_MANT_DIG	__FLT16_MANT_DIG__
+#define TOML_FLOAT16_DIG		__FLT16_DIG__
+#define TOML_FLOAT16_MIN_EXP	__FLT16_MIN_EXP__
+#define TOML_FLOAT16_MIN_10_EXP __FLT16_MIN_10_EXP__
+#define TOML_FLOAT16_MAX_EXP	__FLT16_MAX_EXP__
+#define TOML_FLOAT16_MAX_10_EXP __FLT16_MAX_10_EXP__
+#else
+#define TOML_FLOAT16_MANT_DIG	0
+#define TOML_FLOAT16_DIG		0
+#define TOML_FLOAT16_MIN_EXP	0
+#define TOML_FLOAT16_MIN_10_EXP 0
+#define TOML_FLOAT16_MAX_EXP	0
+#define TOML_FLOAT16_MAX_10_EXP 0
 #endif
+
+#if (TOML_FLOAT16_MANT_DIG && TOML_FLOAT16_DIG && TOML_FLOAT16_MIN_EXP && TOML_FLOAT16_MIN_10_EXP                      \
+	 && TOML_FLOAT16_MAX_EXP && TOML_FLOAT16_MAX_10_EXP)
+#define TOML_FLOAT16_LIMITS_SET 1
+#else
+#define TOML_FLOAT16_LIMITS_SET 0
+#endif
+
+#if TOML_FLOAT16_LIMITS_SET
+
+#if TOML_CLANG // >= 15
+#if (TOML_ARCH_ARM || TOML_ARCH_AMD64 || TOML_ARCH_X86)
+#define TOML_ENABLE_FLOAT16 1
+#endif
+
+#elif TOML_GCC
+#if (TOML_ARCH_ARM || TOML_ARCH_AMD64 /* || TOML_ARCH_X86*/)
+#define TOML_ENABLE_FLOAT16 1
+#endif
+
+#endif // clang/gcc
+
+#endif // TOML_FLOAT16_LIMITS_SET
+
+#endif // !defined(TOML_ENABLE_FLOAT16)
+
+#ifndef TOML_ENABLE_FLOAT16
+#define TOML_ENABLE_FLOAT16 0
 #endif
 
 #if defined(__SIZEOF_FLOAT128__) && defined(__FLT128_MANT_DIG__) && defined(__LDBL_MANT_DIG__)                         \
@@ -1432,6 +1467,7 @@ TOML_NAMESPACE_START // abi namespace
 		indent_array_elements = (1ull << 10),
 		indentation = indent_sub_tables | indent_array_elements,
 		relaxed_float_precision = (1ull << 11),
+		terse_key_value_pairs = (1ull << 12),
 	};
 	TOML_MAKE_FLAGS(format_flags);
 
@@ -1699,9 +1735,9 @@ TOML_IMPL_NAMESPACE_START
 	template <typename T>
 	struct float_traits : float_traits_base<T, std::numeric_limits<T>::digits, std::numeric_limits<T>::digits10>
 	{};
-#ifdef TOML_FLOAT16
+#if TOML_ENABLE_FLOAT16
 	template <>
-	struct float_traits<TOML_FLOAT16> : float_traits_base<TOML_FLOAT16, __FLT16_MANT_DIG__, __FLT16_DIG__>
+	struct float_traits<_Float16> : float_traits_base<_Float16, __FLT16_MANT_DIG__, __FLT16_DIG__>
 	{};
 #endif
 #ifdef TOML_FLOAT128
@@ -1720,9 +1756,9 @@ TOML_IMPL_NAMESPACE_START
 	template <>
 	struct value_traits<long double> : float_traits<long double>
 	{};
-#ifdef TOML_FLOAT16
+#if TOML_ENABLE_FLOAT16
 	template <>
-	struct value_traits<TOML_FLOAT16> : float_traits<TOML_FLOAT16>
+	struct value_traits<_Float16> : float_traits<_Float16>
 	{};
 #endif
 #ifdef TOML_FLOAT128
@@ -9342,6 +9378,12 @@ TOML_IMPL_NAMESPACE_START
 			return !!(config_.flags & format_flags::allow_unicode_strings);
 		}
 
+		TOML_PURE_INLINE_GETTER
+		bool terse_kvps() const noexcept
+		{
+			return !!(config_.flags & format_flags::terse_key_value_pairs);
+		}
+
 		TOML_EXPORTED_MEMBER_FUNCTION
 		void attach(std::ostream& stream) noexcept;
 
@@ -9689,7 +9731,7 @@ TOML_POP_WARNINGS;
 
 //********  impl/std_string.inl  ***************************************************************************************
 
-#if TOML_ENABLE_WINDOWS_COMPAT
+#if TOML_WINDOWS
 
 #ifndef _WINDOWS_
 #if TOML_INCLUDE_WINDOWS_H
@@ -9788,7 +9830,7 @@ TOML_IMPL_NAMESPACE_END;
 #endif
 TOML_POP_WARNINGS;
 
-#endif // TOML_ENABLE_WINDOWS_COMPAT
+#endif // TOML_WINDOWS
 
 //********  impl/print_to_stream.inl  **********************************************************************************
 
@@ -15729,7 +15771,11 @@ TOML_ANON_NAMESPACE_START
 		std::ifstream file;
 		TOML_OVERALIGNED char file_buffer[sizeof(void*) * 1024u];
 		file.rdbuf()->pubsetbuf(file_buffer, sizeof(file_buffer));
+#if TOML_WINDOWS
+		file.open(impl::widen(file_path_str), std::ifstream::in | std::ifstream::binary | std::ifstream::ate);
+#else
 		file.open(file_path_str, std::ifstream::in | std::ifstream::binary | std::ifstream::ate);
+#endif
 		if (!file.is_open())
 			TOML_PARSE_FILE_ERROR("File could not be opened for reading", file_path_str);
 
@@ -16520,7 +16566,10 @@ TOML_NAMESPACE_START
 			first = true;
 
 			print(k);
-			print_unformatted(" = "sv);
+			if (terse_kvps())
+				print_unformatted("="sv);
+			else
+				print_unformatted(" = "sv);
 
 			const auto type = v.type();
 			TOML_ASSUME(type != node_type::none);
@@ -16623,7 +16672,10 @@ TOML_NAMESPACE_START
 			print_newline();
 			print_indent();
 			print(k);
-			print_unformatted(" = "sv);
+			if (terse_kvps())
+				print_unformatted("="sv);
+			else
+				print_unformatted(" = "sv);
 			TOML_ASSUME(type != node_type::none);
 			switch (type)
 			{
@@ -16810,7 +16862,10 @@ TOML_NAMESPACE_START
 			print_indent();
 
 			print_string(k.str(), false);
-			print_unformatted(" : "sv);
+			if (terse_kvps())
+				print_unformatted(":"sv);
+			else
+				print_unformatted(" : "sv);
 
 			const auto type = v.type();
 			TOML_ASSUME(type != node_type::none);
@@ -16968,7 +17023,10 @@ TOML_NAMESPACE_START
 			parent_is_array = false;
 
 			print_string(k.str(), false, true);
-			print_unformatted(": "sv);
+			if (terse_kvps())
+				print_unformatted(":"sv);
+			else
+				print_unformatted(": "sv);
 
 			const auto type = v.type();
 			TOML_ASSUME(type != node_type::none);
@@ -17067,8 +17125,8 @@ TOML_POP_WARNINGS;
 #undef TOML_ANON_NAMESPACE
 #undef TOML_ANON_NAMESPACE_END
 #undef TOML_ANON_NAMESPACE_START
-#undef TOML_ARCH_ARM
 #undef TOML_ARCH_AMD64
+#undef TOML_ARCH_ARM
 #undef TOML_ARCH_ARM32
 #undef TOML_ARCH_ARM64
 #undef TOML_ARCH_ITANIUM
@@ -17108,7 +17166,13 @@ TOML_POP_WARNINGS;
 #undef TOML_FLAGS_ENUM
 #undef TOML_FLOAT_CHARCONV
 #undef TOML_FLOAT128
-#undef TOML_FLOAT16
+#undef TOML_FLOAT16_DIG
+#undef TOML_FLOAT16_LIMITS_SET
+#undef TOML_FLOAT16_MANT_DIG
+#undef TOML_FLOAT16_MAX_10_EXP
+#undef TOML_FLOAT16_MAX_EXP
+#undef TOML_FLOAT16_MIN_10_EXP
+#undef TOML_FLOAT16_MIN_EXP
 #undef TOML_GCC
 #undef TOML_HAS_ATTR
 #undef TOML_HAS_BUILTIN
