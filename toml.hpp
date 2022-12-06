@@ -607,6 +607,7 @@
 	TOML_PRAGMA_GCC(diagnostic ignored "-Wmaybe-uninitialized")                                                        \
 	TOML_PRAGMA_GCC(diagnostic ignored "-Wnoexcept")                                                                   \
 	TOML_PRAGMA_GCC(diagnostic ignored "-Wnull-dereference")                                                           \
+	TOML_PRAGMA_GCC(diagnostic ignored "-Wduplicated-branches")                                                        \
 	static_assert(true)
 
 #define TOML_POP_WARNINGS                                                                                              \
@@ -10489,7 +10490,7 @@ TOML_IMPL_NAMESPACE_START
 					}
 					else if TOML_UNLIKELY(c == '.' || c == '[')
 						break;
-					else if (c == '\t' || c == '.')
+					else if (c == '\t' || c == ' ')
 						pos++;
 					else
 						return false;
