@@ -83,6 +83,11 @@ TOML_NAMESPACE_START
 }
 TOML_NAMESPACE_END;
 
+
+#if defined(BUILD_MONOLITHIC)
+#define main      toml_tt_decoder_main
+#endif
+
 int main()
 {
 	try

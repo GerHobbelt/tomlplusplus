@@ -79,7 +79,12 @@ namespace
 	}
 }
 
-int main(int argc, char** argv)
+
+#if defined(BUILD_MONOLITHIC)
+#define main      toml_example_merger_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	const auto base_path	  = argc > 1 ? std::string_view{ argv[1] } : "merge_base.toml"sv;
 	const auto overrides_path = argc > 2 ? std::string_view{ argv[2] } : "merge_overrides.toml"sv;
