@@ -37,6 +37,7 @@
 
 // windows.h config (included transitively by catch2 on windows)
 #ifdef _WIN32
+#if 0
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 #define NOATOM			  // Atom Manager routines
@@ -78,6 +79,7 @@
 #define NOWINSTYLES		  // WS_*, CS_*, ES_*, LBS_*, SBS_*, CBS_*
 //#define NOMINMAX        // Macros min(a,b) and max(a,b)
 //#define NONLS           // All NLS defines and routines
+#endif
 #endif
 
 // test harness stuff
