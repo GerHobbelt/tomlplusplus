@@ -113,7 +113,7 @@ You'll find some more code examples in the `examples` directory, and plenty more
 
 ### Conan
 
-Add `tomlplusplus/3.2.0` to your conanfile.
+Add `tomlplusplus/3.3.0` to your conanfile.
 
 ### DDS
 
@@ -121,7 +121,7 @@ Add `tomlpp` to your `package.json5`, e.g.:
 
 ```plaintext
 depends: [
-    'tomlpp^3.2.0',
+    'tomlpp^3.3.0',
 ]
 ```
 
@@ -166,7 +166,7 @@ include(FetchContent)
 FetchContent_Declare(
     tomlplusplus
     GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
-    GIT_TAG        v3.2.0
+    GIT_TAG        v3.3.0
 )
 FetchContent_MakeAvailable(tomlplusplus)
 ```
@@ -177,11 +177,7 @@ FetchContent_MakeAvailable(tomlplusplus)
 
 ```plaintext
 git submodule add --depth 1 https://github.com/marzer/tomlplusplus.git tomlplusplus
-git config -f .gitmodules submodule.tomlplusplus.shallow true
 ```
-
-> ⚠&#xFE0F; The toml++ repository has some submodules of its own, but **they are only used for testing**!
-> You should **not** use the `--recursive` option for regular library consumption.
 
 ### Other environments and package managers
 
