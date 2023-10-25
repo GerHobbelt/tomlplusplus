@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
-#include "preprocessor.h"
+#include "preprocessor.hpp"
 //# {{
 #if !TOML_IMPLEMENTATION
 #error This is an implementation-only header.
@@ -12,14 +12,14 @@
 //# }}
 #if TOML_ENABLE_FORMATTERS
 
-#include "formatter.h"
-#include "print_to_stream.h"
-#include "value.h"
-#include "table.h"
-#include "array.h"
-#include "unicode.h"
-#include "parse_result.h"
-#include "header_start.h"
+#include "formatter.hpp"
+#include "print_to_stream.hpp"
+#include "value.hpp"
+#include "table.hpp"
+#include "array.hpp"
+#include "unicode.hpp"
+#include "parse_result.hpp"
+#include "header_start.hpp"
 
 TOML_IMPL_NAMESPACE_START
 {
@@ -205,6 +205,10 @@ TOML_IMPL_NAMESPACE_START
 			if (decoder.needs_more_input())
 				bad_unicode();
 		}
+
+		// strings with line breaks and tabs can't be bare
+		if (!!(traits & (formatted_string_traits::line_breaks | formatted_string_traits::tabs)))
+			traits |= formatted_string_traits::non_bare;
 
 		// if the string meets the requirements of being 'bare' we can emit a bare string
 		// (bare strings are composed of letters and numbers; no whitespace, control chars, quotes, etc)
@@ -509,5 +513,5 @@ TOML_IMPL_NAMESPACE_START
 }
 TOML_IMPL_NAMESPACE_END;
 
-#include "header_end.h"
+#include "header_end.hpp"
 #endif // TOML_ENABLE_FORMATTERS

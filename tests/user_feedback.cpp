@@ -3,7 +3,7 @@
 // See https://github.com/marzer/tomlplusplus/blob/master/LICENSE for the full license text.
 // SPDX-License-Identifier: MIT
 
-#include "tests.h"
+#include "tests.hpp"
 
 // this file is about testing user misc. repros submitted via github issues, et cetera.
 
@@ -129,7 +129,7 @@ TEST_CASE("user feedback")
 							   });
 	}
 
-	SECTION("tomlplusplus/issues/69")	// https://github.com/marzer/tomlplusplus/issues/69
+	SECTION("tomlplusplus/issues/69") // https://github.com/marzer/tomlplusplus/issues/69
 	{
 		using namespace toml::literals; // should compile without namespace ambiguity
 		auto table = "[table]\nkey=\"value\""_toml;
@@ -392,5 +392,42 @@ b = []
 			[a]
 			y = 2
 		)"sv);
+	}
+
+	SECTION("tomlplusplus/issues/207") // https://github.com/marzer/tomlplusplus/issues/207
+	{
+		enum class an_enum
+		{
+			zero,
+			one,
+			two,
+			three
+		};
+
+		parsing_should_succeed(FILE_LINE_ARGS,
+							   "val = 2\n",
+							   [](auto&& tbl)
+							   {
+								   const auto val = tbl["val"].template value_or<an_enum>(an_enum::zero);
+								   CHECK(val == an_enum::two);
+							   });
+	}
+
+	SECTION("tomlplusplus/issues/176") // https://github.com/marzer/tomlplusplus/issues/176
+	{
+		parsing_should_succeed(FILE_LINE_ARGS,
+							   R"(
+								"a"    = "x\ty"
+								"a\tb" = "x\ty"
+								)",
+							   [](auto&& tbl)
+							   {
+								   CHECK(tbl["a"]);
+								   CHECK(tbl["a\tb"]);
+
+								   std::stringstream ss;
+								   ss << tbl;
+								   CHECK(ss.str() == "a = 'x\ty'\n'a\tb' = 'x\ty'"sv);
+							   });
 	}
 }
