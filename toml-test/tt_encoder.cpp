@@ -18,6 +18,7 @@ using namespace std::string_view_literals;
 		&& j["value"].is_string();
 }
 
+
 TOML_NAMESPACE_START
 {
 	static void from_json(const json& j, value<std::string>& val)
@@ -86,7 +87,7 @@ TOML_NAMESPACE_START
 		from_json_via_parse(j, val);
 	}
 
-	static void from_json(const json& j, value<time>& val)
+	static void from_json(const json& j, value<toml::time>& val)
 	{
 		assert(is_tt_value(j));
 		assert(j["type"] == "time-local");
@@ -142,7 +143,7 @@ TOML_NAMESPACE_START
 					else if (v["type"] == "date-local")
 						insert_from_json<toml::value<date>>(tbl, k, v);
 					else if (v["type"] == "time-local")
-						insert_from_json<toml::value<time>>(tbl, k, v);
+						insert_from_json<toml::value<toml::time>>(tbl, k, v);
 					else if (v["type"] == "datetime-local" || v["type"] == "datetime")
 						insert_from_json<toml::value<date_time>>(tbl, k, v);
 				}
@@ -175,7 +176,7 @@ TOML_NAMESPACE_START
 					else if (v["type"] == "date-local")
 						insert_from_json<toml::value<date>>(arr, v);
 					else if (v["type"] == "time-local")
-						insert_from_json<toml::value<time>>(arr, v);
+						insert_from_json<toml::value<toml::time>>(arr, v);
 					else if (v["type"] == "datetime-local" || v["type"] == "datetime")
 						insert_from_json<toml::value<date_time>>(arr, v);
 				}
@@ -188,7 +189,6 @@ TOML_NAMESPACE_START
 	}
 }
 TOML_NAMESPACE_END;
-
 
 #if defined(BUILD_MONOLITHIC)
 #define main      toml_tt_encoder_main

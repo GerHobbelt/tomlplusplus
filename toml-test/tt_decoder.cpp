@@ -53,7 +53,7 @@ TOML_NAMESPACE_START
 		to_json_via_stream(j, val);
 	}
 
-	static void to_json(json & j, const value<time>& val)
+	static void to_json(json & j, const value<toml::time>& val)
 	{
 		j["type"] = "time-local";
 		to_json_via_stream(j, val);

@@ -1363,7 +1363,7 @@ TOML_ENABLE_WARNINGS;
 	#define TOML_ANON_NAMESPACE_END				TOML_IMPL_NAMESPACE_END
 	#define TOML_ANON_NAMESPACE					TOML_NAMESPACE::impl
 	#define TOML_EXTERNAL_LINKAGE				inline
-	#define TOML_INTERNAL_LINKAGE				inline
+	#define TOML_INTERNAL_LINKAGE				static inline
 #else
 	#define TOML_ANON_NAMESPACE_START			static_assert(TOML_IMPLEMENTATION);	\
 												using namespace toml;				\

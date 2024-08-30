@@ -11832,7 +11832,7 @@ TOML_NAMESPACE_START
 	TOML_EXTERNAL_LINKAGE
 	void array::insert_at_back(impl::node_ptr && elem)
 	{
-		TOML_ASSERT(elem);
+		TOML_ASSERT(elem != nullptr);
 		elems_.push_back(std::move(elem));
 	}
 
@@ -12651,7 +12651,7 @@ TOML_ANON_NAMESPACE_START
 		TOML_ATTR(nonnull)
 		size_t operator()(void* dest, size_t num) noexcept(!TOML_COMPILER_HAS_EXCEPTIONS)
 		{
-			TOML_ASSERT(*this);
+			TOML_ASSERT(!!*this);
 
 			source_->read(static_cast<char*>(dest), static_cast<std::streamsize>(num));
 			return static_cast<size_t>(source_->gcount());
@@ -12754,7 +12754,7 @@ TOML_ANON_NAMESPACE_START
 
 		bool read_next_block() noexcept(!TOML_COMPILER_HAS_EXCEPTIONS)
 		{
-			TOML_ASSERT(stream_);
+			TOML_ASSERT(!!stream_);
 
 			TOML_OVERALIGNED char raw_bytes[block_capacity];
 			size_t raw_bytes_read;
@@ -12804,7 +12804,7 @@ TOML_ANON_NAMESPACE_START
 				return false;
 			}
 
-			TOML_ASSERT_ASSUME(raw_bytes_read);
+			TOML_ASSERT_ASSUME(raw_bytes_read != 0);
 			std::memset(&codepoints_, 0, sizeof(codepoints_));
 
 			// helper for calculating decoded codepoint line+cols
@@ -12891,7 +12891,7 @@ TOML_ANON_NAMESPACE_START
 				}
 			}
 
-			TOML_ASSERT_ASSUME(codepoints_.count);
+			TOML_ASSERT_ASSUME(codepoints_.count != 0);
 			calc_positions();
 
 			// handle general I/O errors
@@ -12941,7 +12941,7 @@ TOML_ANON_NAMESPACE_START
 
 				TOML_ASSERT_ASSUME(!codepoints_.current);
 			}
-			TOML_ASSERT_ASSUME(codepoints_.count);
+			TOML_ASSERT_ASSUME(codepoints_.count != 0);
 			TOML_ASSERT_ASSUME(codepoints_.count <= block_capacity);
 			TOML_ASSERT_ASSUME(codepoints_.current < codepoints_.count);
 
@@ -13059,7 +13059,7 @@ TOML_ANON_NAMESPACE_START
 		{
 			utf8_buffered_reader_error_check({});
 
-			TOML_ASSERT_ASSUME(history_.count);
+			TOML_ASSERT_ASSUME(history_.count != 0);
 			TOML_ASSERT_ASSUME(negative_offset_ + count <= history_.count);
 
 			negative_offset_ += count;
@@ -13612,7 +13612,7 @@ TOML_IMPL_NAMESPACE_START
 		void go_back(size_t count = 1) noexcept
 		{
 			return_if_error();
-			TOML_ASSERT_ASSUME(count);
+			TOML_ASSERT_ASSUME(count != 0);
 
 			cp		 = reader.step_back(count);
 			prev_pos = cp->position;
@@ -13787,8 +13787,8 @@ TOML_IMPL_NAMESPACE_START
 		bool consume_digit_sequence(T* digits, size_t len)
 		{
 			return_if_error({});
-			TOML_ASSERT_ASSUME(digits);
-			TOML_ASSERT_ASSUME(len);
+			TOML_ASSERT_ASSUME(digits != nullptr);
+			TOML_ASSERT_ASSUME(len != 0);
 
 			for (size_t i = 0; i < len; i++)
 			{
@@ -13807,8 +13807,8 @@ TOML_IMPL_NAMESPACE_START
 		size_t consume_variable_length_digit_sequence(T* buffer, size_t max_len)
 		{
 			return_if_error({});
-			TOML_ASSERT_ASSUME(buffer);
-			TOML_ASSERT_ASSUME(max_len);
+			TOML_ASSERT_ASSUME(buffer != nullptr);
+			TOML_ASSERT_ASSUME(max_len != 0);
 
 			size_t i = {};
 			for (; i < max_len; i++)
