@@ -209,7 +209,7 @@ TOML_NAMESPACE_START // abi namespace
 	/// #include <toml++/toml.hpp>
 	///	using namespace toml::literals;
 	///
-	///	int main()
+	///	int main(void)
 	///	{
 	///		toml::table tbl = "vals = [1, 2, 3]"_toml;
 	///

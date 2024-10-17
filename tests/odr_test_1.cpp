@@ -8,7 +8,7 @@ TOML_DISABLE_WARNINGS;
 #define main      toml_odr_test_1_main
 #endif
 
-int main()
+int main(void)
 {
 	return 0;
 }

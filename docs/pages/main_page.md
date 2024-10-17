@@ -77,7 +77,7 @@ Call toml::parse() and work with the toml::table you get back, or handle any tom
 #include <toml++/toml.hpp>
 using namespace std::string_view_literals;
 
-int main()
+int main(void)
 {
     static constexpr std::string_view some_toml = R"(
         [library]
@@ -144,7 +144,7 @@ the parsing functions return a toml::parse_result instead of a toml::table:
 #define TOML_EXCEPTIONS 0 // only necessary if you've left them enabled in your compiler
 #include <toml++/toml.hpp>
 
-int main()
+int main(void)
 {
     toml::parse_result result = toml::parse_file("configuration.toml");
 
@@ -210,7 +210,7 @@ the toml::node_view:
 #include <toml++/toml.hpp>
 using namespace std::string_view_literals;
 
-int main()
+int main(void)
 {
     static constexpr auto source = R"(
         str = "hello world"
@@ -313,7 +313,7 @@ but via a toml::json_formatter and toml::yaml_formatter.
 #include <iostream>
 #include <toml++/toml.hpp>
 
-int main()
+int main(void)
 {
     auto tbl = toml::table{
         { "lib", "toml++" },

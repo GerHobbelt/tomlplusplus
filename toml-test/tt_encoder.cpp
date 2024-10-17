@@ -194,7 +194,7 @@ TOML_NAMESPACE_END;
 #define main      toml_tt_encoder_main
 #endif
 
-int main()
+int main(void)
 {
 	try
 	{
