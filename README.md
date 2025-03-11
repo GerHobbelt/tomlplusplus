@@ -290,13 +290,14 @@ UTF-8 decoding is performed using a state machine based on Bjoern Hoehrmann's '[
 -   **[@levicki](https://github.com/levicki)** - Helped design some new features
 -   **[@moorereason](https://github.com/moorereason)** - Reported a whole bunch of bugs
 -   **[@mosra](https://github.com/mosra)** - Created the awesome [m.css] used to generate the API docs
+-   **[@N-Dekker](https://github.com/N-Dekker)** - Added a workaround for the legacy lambda processor of MSVC 2019/2022
 -   **[@ned14](https://github.com/ned14)** - Reported a bunch of bugs and helped design some new features
 -   **[@okureta](https://github.com/okureta)** - Reported a bug
 -   **[@prince-chrismc](https://github.com/prince-chrismc)** - Added toml++ to ConanCenter, and fixed some typos
 -   **[@rbrugo](https://github.com/rbrugo)** - Helped design a new feature
 -   **[@Reedbeta](https://github.com/Reedbeta)** - Fixed a bug and added additional Visual Studio debugger native visualizers
 -   **[@Ryan-rsm-McKenzie](https://github.com/Ryan-rsm-McKenzie)** - Add natvis file to cmake install script
--   **[@Scrumplex][https://github.com/Scrumplex)** - Tweaked the build scripts
+-   **[@Scrumplex](https://github.com/Scrumplex)** - Tweaked the build scripts
 -   **[@shdnx](https://github.com/shdnx)** - Fixed a bug on GCC 8.2.0 and some meson config issues
 -   **[@sneves](https://github.com/sneves)** - Helped fix a number of parser bugs
 -   **[@sobczyk](https://github.com/sobczyk)** - Reported some bugs
@@ -307,7 +308,7 @@ UTF-8 decoding is performed using a state machine based on Bjoern Hoehrmann's '[
 -   **[@ximion](https://github.com/ximion)** - Added support for installation with meson
 -   **[@a-is](https://github.com/a-is)** - Fixed a bug
 -   **[@capuanob](https://github.com/capuanob)** - Integrated this project into OSSFuzz
--   **[@tyler92]** - Fixed stack overflow that occurred during fuzzing tests
+-   **[@tyler92](https://github.com/tyler92)** - Fixed stack overflow that occurred during fuzzing tests
 <br>
 
 ## Contact
