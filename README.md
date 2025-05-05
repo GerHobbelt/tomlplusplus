@@ -20,6 +20,7 @@
 ## Library features
 
 -   Header-only (optional!)
+-   Module support
 -   Supports the latest [TOML] release ([v1.0.0]), plus optional support for some unreleased TOML features
 -   Passes all tests in the [toml-test](https://github.com/toml-lang/toml-test) suite
 -   Supports serializing to JSON and YAML
@@ -110,8 +111,8 @@ You'll find some more code examples in the `examples` directory, and plenty more
 ### 🍨&#xFE0F; Regular flavour
 
 1. Clone the repository
-2. Add `tomlplusplus/include` to your include paths
-3. `#include <toml++/toml.hpp>`
+2. Add `tomlplusplus/include` to your include paths, or for optional module support add `tomlplusplus/modules` as well and enable `TOMLPLUSPLUS_BUILD_MODULES`
+3. `#include <toml++/toml.hpp>` (or `import tomlplusplus;`)
 
 ### Conan
 
@@ -202,26 +203,27 @@ See [CONTRIBUTING] for information.
 A number of configurable options are exposed in the form of preprocessor `#defines` Most likely you
 won't need to mess with these at all, but if you do, set them before including toml++.
 
-| Option                            |      Type      | Description                                                                                               | Default               |
-| --------------------------------- | :------------: | --------------------------------------------------------------------------------------------------------- | --------------------- |
-| `TOML_ASSERT(expr)`               | function macro | Sets the assert function used by the library.                                                             | `assert()`            |
-| `TOML_CALLCONV`                   |     define     | Calling convention to apply to exported free/static functions.                                            | undefined             |
-| `TOML_CONFIG_HEADER`              | string literal | Includes the given header file before the rest of the library.                                            | undefined             |
-| `TOML_ENABLE_FORMATTERS`          |    boolean     | Enables the formatters. Set to `0` if you don't need them to improve compile times and binary size.       | `1`                   |
-| `TOML_ENABLE_FLOAT16`             |    boolean     | Enables support for the built-in `_Float16` type.                                                         | per compiler settings |
-| `TOML_ENABLE_PARSER`              |    boolean     | Enables the parser. Set to `0` if you don't need it to improve compile times and binary size.             | `1`                   |
-| `TOML_ENABLE_UNRELEASED_FEATURES` |    boolean     | Enables support for [unreleased TOML language features].                                                  | `0`                   |
-| `TOML_ENABLE_WINDOWS_COMPAT`      |    boolean     | Enables support for transparent conversion between wide and narrow strings.                               | `1` on Windows        |
-| `TOML_EXCEPTIONS`                 |    boolean     | Sets whether the library uses exceptions.                                                                 | per compiler settings |
-| `TOML_EXPORTED_CLASS`             |     define     | API export annotation to add to classes.                                                                  | undefined             |
-| `TOML_EXPORTED_MEMBER_FUNCTION`   |     define     | API export annotation to add to non-static class member functions.                                        | undefined             |
-| `TOML_EXPORTED_FREE_FUNCTION`     |     define     | API export annotation to add to free functions.                                                           | undefined             |
-| `TOML_EXPORTED_STATIC_FUNCTION`   |     define     | API export annotation to add to static functions.                                                         | undefined             |
-| `TOML_HEADER_ONLY`                |    boolean     | Disable this to explicitly control where toml++'s implementation is compiled (e.g. as part of a library). | `1`                   |
-| `TOML_IMPLEMENTATION`             |     define     | Define this to enable compilation of the library's implementation when `TOML_HEADER_ONLY` == `0`.         | undefined             |
-| `TOML_OPTIONAL_TYPE`              |   type name    | Overrides the `optional<T>` type used by the library if you need [something better than std::optional].   | undefined             |
-| `TOML_SMALL_FLOAT_TYPE`           |   type name    | If your codebase has a custom 'small float' type (e.g. half-precision), this tells toml++ about it.       | undefined             |
-| `TOML_SMALL_INT_TYPE`             |   type name    | If your codebase has a custom 'small integer' type (e.g. 24-bits), this tells toml++ about it.            | undefined             |
+| Option                                     |      Type      | Description                                                                                               | Default               |
+| ------------------------------------------ | :------------: | --------------------------------------------------------------------------------------------------------- | --------------------- |
+| `TOML_ASSERT(expr)`                        | function macro | Sets the assert function used by the library.                                                             | `assert()`            |
+| `TOML_CALLCONV`                            |     define     | Calling convention to apply to exported free/static functions.                                            | undefined             |
+| `TOML_CONFIG_HEADER`                       | string literal | Includes the given header file before the rest of the library.                                            | undefined             |
+| `TOML_DISABLE_CONDITIONAL_NOEXCEPT_LAMBDA` |    boolean     | Disables the conditional `noexcept`'s of internal lambda's. Needed for MSVC's "legacy lambda processor".  | `0`                   |
+| `TOML_ENABLE_FORMATTERS`                   |    boolean     | Enables the formatters. Set to `0` if you don't need them to improve compile times and binary size.       | `1`                   |
+| `TOML_ENABLE_FLOAT16`                      |    boolean     | Enables support for the built-in `_Float16` type.                                                         | per compiler settings |
+| `TOML_ENABLE_PARSER`                       |    boolean     | Enables the parser. Set to `0` if you don't need it to improve compile times and binary size.             | `1`                   |
+| `TOML_ENABLE_UNRELEASED_FEATURES`          |    boolean     | Enables support for [unreleased TOML language features].                                                  | `0`                   |
+| `TOML_ENABLE_WINDOWS_COMPAT`               |    boolean     | Enables support for transparent conversion between wide and narrow strings.                               | `1` on Windows        |
+| `TOML_EXCEPTIONS`                          |    boolean     | Sets whether the library uses exceptions.                                                                 | per compiler settings |
+| `TOML_EXPORTED_CLASS`                      |     define     | API export annotation to add to classes.                                                                  | undefined             |
+| `TOML_EXPORTED_MEMBER_FUNCTION`            |     define     | API export annotation to add to non-static class member functions.                                        | undefined             |
+| `TOML_EXPORTED_FREE_FUNCTION`              |     define     | API export annotation to add to free functions.                                                           | undefined             |
+| `TOML_EXPORTED_STATIC_FUNCTION`            |     define     | API export annotation to add to static functions.                                                         | undefined             |
+| `TOML_HEADER_ONLY`                         |    boolean     | Disable this to explicitly control where toml++'s implementation is compiled (e.g. as part of a library). | `1`                   |
+| `TOML_IMPLEMENTATION`                      |     define     | Define this to enable compilation of the library's implementation when `TOML_HEADER_ONLY` == `0`.         | undefined             |
+| `TOML_OPTIONAL_TYPE`                       |   type name    | Overrides the `optional<T>` type used by the library if you need [something better than std::optional].   | undefined             |
+| `TOML_SMALL_FLOAT_TYPE`                    |   type name    | If your codebase has a custom 'small float' type (e.g. half-precision), this tells toml++ about it.       | undefined             |
+| `TOML_SMALL_INT_TYPE`                      |   type name    | If your codebase has a custom 'small integer' type (e.g. 24-bits), this tells toml++ about it.            | undefined             |
 
 > ℹ&#xFE0F; _A number of these have ABI implications; the library uses inline namespaces to prevent you from accidentally
 > linking incompatible combinations together._
@@ -281,13 +283,16 @@ UTF-8 decoding is performed using a state machine based on Bjoern Hoehrmann's '[
 
 ### With thanks to:
 
+-   **[@a-is](https://github.com/a-is)** - Fixed a bug
 -   **[@beastle9end](https://github.com/beastle9end)** - Made Windows.h include bypass
 -   **[@bjadamson](https://github.com/bjadamson)** - Reported some bugs and helped design a new feature
 -   **[@bobfang1992](https://github.com/bobfang1992)** - Reported a bug and created a [wrapper in python](https://github.com/bobfang1992/pytomlpp)
+-   **[@capuanob](https://github.com/capuanob)** - Integrated this project into OSSFuzz
 -   **[@GiulioRomualdi](https://github.com/GiulioRomualdi)** - Added cmake+meson support
 -   **[@jonestristand](https://github.com/jonestristand)** - Designed and implemented the `toml::path`s feature
 -   **[@kcsaul](https://github.com/kcsaul)** - Fixed a bug
 -   **[@levicki](https://github.com/levicki)** - Helped design some new features
+-   **[@mikomikotaishi](https://github.com/mikomikotaishi)** - Added support for C++20 modules
 -   **[@moorereason](https://github.com/moorereason)** - Reported a whole bunch of bugs
 -   **[@mosra](https://github.com/mosra)** - Created the awesome [m.css] used to generate the API docs
 -   **[@N-Dekker](https://github.com/N-Dekker)** - Added a workaround for the legacy lambda processor of MSVC 2019/2022, added `get_line`
@@ -304,11 +309,9 @@ UTF-8 decoding is performed using a state machine based on Bjoern Hoehrmann's '[
 -   **[@std-any-emplace](https://github.com/std-any-emplace)** - Reported some bugs
 -   **[@Tachi107](https://github.com/Tachi107)** - Made some tweaks to meson.build, added compile_library build option
 -   **[@traversaro](https://github.com/traversaro)** - Added vcpkg support and reported a bunch of bugs
+-   **[@tyler92](https://github.com/tyler92)** - Fixed stack overflow that occurred during fuzzing tests
 -   **[@whiterabbit963](https://github.com/whiterabbit963)** - Fixed a bug with value_or conversions
 -   **[@ximion](https://github.com/ximion)** - Added support for installation with meson
--   **[@a-is](https://github.com/a-is)** - Fixed a bug
--   **[@capuanob](https://github.com/capuanob)** - Integrated this project into OSSFuzz
--   **[@tyler92](https://github.com/tyler92)** - Fixed stack overflow that occurred during fuzzing tests
 <br>
 
 ## Contact
