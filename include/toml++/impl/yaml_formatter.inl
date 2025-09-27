@@ -155,7 +155,7 @@ TOML_NAMESPACE_START
 
 			case node_type::string: print_yaml_string(*reinterpret_cast<const value<std::string>*>(&source())); break;
 
-			default: print_value(source(), source_type);
+			default: print_value(source());
 		}
 	}
 }

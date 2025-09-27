@@ -111,7 +111,7 @@ TOML_NAMESPACE_START
 		{
 			case node_type::table: print(*reinterpret_cast<const table*>(&source())); break;
 			case node_type::array: print(*reinterpret_cast<const array*>(&source())); break;
-			default: print_value(source(), source_type);
+			default: print_value(source());
 		}
 	}
 }
