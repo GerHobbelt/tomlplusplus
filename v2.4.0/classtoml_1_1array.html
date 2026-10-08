@@ -18,7 +18,7 @@
   <meta content="TOML for modern C++" property="og:description"/>
   <meta content="TOML for modern C++" itemprop="description"/>
   <meta content="telephone=no" name="format-detection"/>
-  <meta content="Poxy v0.20.1" name="generator"/>
+  <meta content="Poxy v0.27.1" name="generator"/>
   <meta content="strict-origin-when-cross-origin" name="referrer"/>
   <meta content="gbtcNgKlNiPSMKkYMw4zWFVWGPH_oU93m9n_-nb4qK8" name="google-site-verification"/>
 </head>
@@ -1001,7 +1001,7 @@
 <pre class="m-code"><span class="k">auto</span> <span class="n">arr</span> <span class="o">=</span> <span class="nn">toml</span><span class="o">::</span><span class="nc">array</span><span class="p">{</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span> <span class="p">};</span>
 <span class="n">arr</span><span class="p">.</span><span class="nf">insert</span><span class="p">(</span><span class="n">arr</span><span class="p">.</span><span class="nf">cbegin</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="s">"two"</span><span class="p">);</span>
 <span class="n">arr</span><span class="p">.</span><span class="nf">insert</span><span class="p">(</span><span class="n">arr</span><span class="p">.</span><span class="nf">cend</span><span class="p">(),</span> <span class="nn">toml</span><span class="o">::</span><span class="nc">array</span><span class="p">{</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span> <span class="p">});</span>
-<span class="nn">std</span><span class="o">::</span><span class="nc">cout</span> <span class="o">&lt;&lt;</span> <span class="n">arr</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span></pre><pre class="m-console"><span class="go">[ 1, 'two', 3, [ 4, 5 ] ]</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code><a class="m-doc" href="#adaf908b0cc3e8bcb1ee9ec9ec706d223">end()</a></code> if the input value was an empty <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion can take place. This is the only circumstance in which this can occur.</p></aside>
+<span class="nn">std</span><span class="o">::</span><span class="nc">cout</span> <span class="o">&lt;&lt;</span> <span class="n">arr</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span></pre><pre class="m-console"><span class="go">[ 1, 'two', 3, [ 4, 5 ] ]</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code>end()</code> if the input value was an empty <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion can take place. This is the only circumstance in which this can occur.</p></aside>
           </div></section>
           <section class="m-doc-details" id="aa454d276f2935b1e2b5c2caec9bc2a0d"><div>
             <h3>
@@ -1059,7 +1059,7 @@
 <span class="go">    'honk',</span>
 <span class="go">    'honk',</span>
 <span class="go">    'and immediately we knew peace was never an option.'</span>
-<span class="go">]</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code><a class="m-doc" href="#adaf908b0cc3e8bcb1ee9ec9ec706d223">end()</a></code> if the input value was an empty <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion can take place. This is the only circumstance in which this can occur.</p></aside>
+<span class="go">]</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code>end()</code> if the input value was an empty <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion can take place. This is the only circumstance in which this can occur.</p></aside>
           </div></section>
           <section class="m-doc-details" id="a311fed9b54b87daab0646fbc1818170b"><div>
             <h3>

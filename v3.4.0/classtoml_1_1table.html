@@ -18,7 +18,7 @@
   <meta content="TOML for C++" property="og:description"/>
   <meta content="TOML for C++" itemprop="description"/>
   <meta content="telephone=no" name="format-detection"/>
-  <meta content="Poxy v0.20.1" name="generator"/>
+  <meta content="Poxy v0.27.1" name="generator"/>
   <meta content="strict-origin-when-cross-origin" name="referrer"/>
   <meta content="gbtcNgKlNiPSMKkYMw4zWFVWGPH_oU93m9n_-nb4qK8" name="google-site-verification"/>
 </head>
@@ -610,19 +610,19 @@
             <dt id="a09e2c0437700b2a4e5c031e046a07b90">
               <span class="m-doc-wrap-bumper">auto <a class="m-doc-self" href="#a09e2c0437700b2a4e5c031e046a07b90">at</a>(</span><span class="m-doc-wrap"><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/string/basic_string_view.html" target="_blank">std::<wbr/>string_view</a> key) →  <a class="m-doc" href="classtoml_1_1node.html">node</a>&amp;</span>
             </dt>
-            <dd>Gets a reference to the element at a specific key, throwing <code><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/error/out_of_range.html" target="_blank">std::<wbr/>out_of_range</a></code> if none existed.</dd>
+            <dd>Gets a reference to the element at a specific key, throwing <code>std::out_of_range</code> if none existed.</dd>
             <dt id="acc57a41e07010edc8b351df267dc6fd0">
               <span class="m-doc-wrap-bumper">auto <a class="m-doc-self" href="#acc57a41e07010edc8b351df267dc6fd0">at</a>(</span><span class="m-doc-wrap"><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/string/basic_string_view.html" target="_blank">std::<wbr/>string_view</a> key) const →  const <a class="m-doc" href="classtoml_1_1node.html">node</a>&amp;</span>
             </dt>
-            <dd>Gets a reference to the element at a specific key, throwing <code><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/error/out_of_range.html" target="_blank">std::<wbr/>out_of_range</a></code> if none existed.</dd>
+            <dd>Gets a reference to the element at a specific key, throwing <code>std::out_of_range</code> if none existed.</dd>
             <dt>
               <span class="m-doc-wrap-bumper">auto <a class="m-doc" href="#afcecd9ea2e9c96c34def4471a2d689b4">at</a>(</span><span class="m-doc-wrap"><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/string/basic_string_view.html" target="_blank">std::<wbr/>wstring_view</a> key) →  <a class="m-doc" href="classtoml_1_1node.html">node</a>&amp;</span>
             </dt>
-            <dd>Gets a reference to the element at a specific key, throwing <code><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/error/out_of_range.html" target="_blank">std::<wbr/>out_of_range</a></code> if none existed.</dd>
+            <dd>Gets a reference to the element at a specific key, throwing <code>std::out_of_range</code> if none existed.</dd>
             <dt>
               <span class="m-doc-wrap-bumper">auto <a class="m-doc" href="#a896761c1925d5ed3bdd1d92446b3d655">at</a>(</span><span class="m-doc-wrap"><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/string/basic_string_view.html" target="_blank">std::<wbr/>wstring_view</a> key) const →  const <a class="m-doc" href="classtoml_1_1node.html">node</a>&amp;</span>
             </dt>
-            <dd>Gets a reference to the element at a specific key, throwing <code><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/error/out_of_range.html" target="_blank">std::<wbr/>out_of_range</a></code> if none existed.</dd>
+            <dd>Gets a reference to the element at a specific key, throwing <code>std::out_of_range</code> if none existed.</dd>
             <dt>
               <span class="m-doc-wrap-bumper">auto <a class="m-doc" href="#afb43a06fdd11582f15761b120aa47fb4">get</a>(</span><span class="m-doc-wrap"><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/string/basic_string_view.html" target="_blank">std::<wbr/>string_view</a> key) →  <a class="m-doc" href="classtoml_1_1node.html">node</a>* <span class="m-label m-flat m-success">noexcept</span></span>
             </dt>
@@ -1194,7 +1194,7 @@
                   <th>Returns</th>
                   <td><p><strong><em>Valid input:</em></strong></p><ul><li>An iterator to the insertion position (or the position of the value that prevented insertion)</li><li>A boolean indicating if the insertion was successful.</li></ul>
 								<p><strong><em>Input is a null <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>:</em></strong>
-							<code>{ <a class="m-doc" href="#a96da67654c5ca131cfec2e3c07aa2730">end()</a>, false }</code></p></td>
+							<code>{ end(), false }</code></p></td>
                 </tr>
               </tfoot>
             </table>
@@ -1219,7 +1219,7 @@
 <span class="go">a = 1</span>
 <span class="go">b = 2</span>
 <span class="go">c = 3</span>
-<span class="go">d = 42</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code>{ <a class="m-doc" href="#a96da67654c5ca131cfec2e3c07aa2730">end()</a>, false }</code> if the input value was an null <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion can take place. This is the only circumstance in which this can occur.</p></aside>
+<span class="go">d = 42</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code>{ end(), false }</code> if the input value was an null <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion can take place. This is the only circumstance in which this can occur.</p></aside>
           </div></section>
           <section class="m-doc-details" id="a331eb6de04d95c3f76bf64e6f84d4ad6"><div>
             <h3>
@@ -1326,7 +1326,7 @@
                   <th>Returns</th>
                   <td><p><strong><em>Valid input:</em></strong></p><ul><li>An iterator to the value's position</li><li><code>true</code> if the value was inserted, <code>false</code> if it was assigned.</li></ul>
 								<p><strong><em>Input is a null <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>:</em></strong>
-							<code>{ <a class="m-doc" href="#a96da67654c5ca131cfec2e3c07aa2730">end()</a>, false }</code></p></td>
+							<code>{ end(), false }</code></p></td>
                 </tr>
               </tfoot>
             </table>
@@ -1352,7 +1352,7 @@
 <span class="go">a = 42</span>
 <span class="go">b = 2</span>
 <span class="go">c = 3</span>
-<span class="go">d = 42</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code>{ <a class="m-doc" href="#a96da67654c5ca131cfec2e3c07aa2730">end()</a>, false }</code> if the input value was a null <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion or assignment can take place. This is the only circumstance in which this can occur.</p></aside>
+<span class="go">d = 42</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code>{ end(), false }</code> if the input value was a null <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion or assignment can take place. This is the only circumstance in which this can occur.</p></aside>
           </div></section>
           <section class="m-doc-details" id="a3eca61af0c4b7e6131f33b2f3fac6c05"><div>
             <h3>
@@ -1817,14 +1817,14 @@
             <h3>
               <span class="m-doc-wrap-bumper"><a class="m-doc" href="classtoml_1_1node.html">node</a>&amp; <span class="m-doc-details-prefix">toml::<wbr/>table::<wbr/></span></span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a class="m-doc-self" href="#afcecd9ea2e9c96c34def4471a2d689b4">at</a>(</span><span class="m-doc-wrap"><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/string/basic_string_view.html" target="_blank">std::<wbr/>wstring_view</a> key)</span></span>
             </h3>
-            <p>Gets a reference to the element at a specific key, throwing <code><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/error/out_of_range.html" target="_blank">std::<wbr/>out_of_range</a></code> if none existed.</p>
+            <p>Gets a reference to the element at a specific key, throwing <code>std::out_of_range</code> if none existed.</p>
 <aside class="m-block m-special"><h4>Conditional availability </h4><p>This overload is only available when <a class="m-doc" href="group__configuration.html#ga94867db67c98e0e9d4fbb70690951fbf">TOML_<wbr/>ENABLE_<wbr/>WINDOWS_<wbr/>COMPAT</a> is enabled.</p></aside>
           </div></section>
           <section class="m-doc-details" id="a896761c1925d5ed3bdd1d92446b3d655"><div>
             <h3>
               <span class="m-doc-wrap-bumper">const <a class="m-doc" href="classtoml_1_1node.html">node</a>&amp; <span class="m-doc-details-prefix">toml::<wbr/>table::<wbr/></span></span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a class="m-doc-self" href="#a896761c1925d5ed3bdd1d92446b3d655">at</a>(</span><span class="m-doc-wrap"><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/string/basic_string_view.html" target="_blank">std::<wbr/>wstring_view</a> key) const</span></span>
             </h3>
-            <p>Gets a reference to the element at a specific key, throwing <code><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/error/out_of_range.html" target="_blank">std::<wbr/>out_of_range</a></code> if none existed.</p>
+            <p>Gets a reference to the element at a specific key, throwing <code>std::out_of_range</code> if none existed.</p>
 <aside class="m-block m-special"><h4>Conditional availability </h4><p>This overload is only available when <a class="m-doc" href="group__configuration.html#ga94867db67c98e0e9d4fbb70690951fbf">TOML_<wbr/>ENABLE_<wbr/>WINDOWS_<wbr/>COMPAT</a> is enabled.</p></aside>
           </div></section>
           <section class="m-doc-details" id="afb43a06fdd11582f15761b120aa47fb4"><div>

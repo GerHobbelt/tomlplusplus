@@ -18,7 +18,7 @@
   <meta content="TOML for modern C++" property="og:description"/>
   <meta content="TOML for modern C++" itemprop="description"/>
   <meta content="telephone=no" name="format-detection"/>
-  <meta content="Poxy v0.20.1" name="generator"/>
+  <meta content="Poxy v0.27.1" name="generator"/>
   <meta content="strict-origin-when-cross-origin" name="referrer"/>
   <meta content="gbtcNgKlNiPSMKkYMw4zWFVWGPH_oU93m9n_-nb4qK8" name="google-site-verification"/>
 </head>
@@ -825,7 +825,7 @@
               <tfoot>
                 <tr>
                   <th>Returns</th>
-                  <td><p>A <a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/utility/pair.html" target="_blank">std::<wbr/>pair</a> containing:<br/></p><ul><li>An iterator to the emplacement position (or the position of the value that prevented emplacement)</li><li>A boolean indicating if the emplacement was successful.<br/></li></ul></td>
+                  <td><p>A <a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/utility/pair.html" target="_blank">std::<wbr/>pair</a> containing:<br/></p><ul><li>An iterator to the emplacement position (or the position of the value that prevented emplacement)</li><li>A boolean indicating if the emplacement was successful.</li></ul></td>
                 </tr>
               </tfoot>
             </table>
@@ -1147,7 +1147,7 @@
                   <th>Returns</th>
                   <td><p><strong><em>Valid input:</em></strong></p><ul><li>An iterator to the insertion position (or the position of the value that prevented insertion)</li><li>A boolean indicating if the insertion was successful.</li></ul>
 								<p><strong><em>Input is an empty <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>:</em></strong>
-							<code>{ <a class="m-doc" href="#a96da67654c5ca131cfec2e3c07aa2730">end()</a>, false }</code></p></td>
+							<code>{ end(), false }</code></p></td>
                 </tr>
               </tfoot>
             </table>
@@ -1172,7 +1172,7 @@
 <span class="go">a = 1</span>
 <span class="go">b = 2</span>
 <span class="go">c = 3</span>
-<span class="go">d = 42</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code>{ <a class="m-doc" href="#a96da67654c5ca131cfec2e3c07aa2730">end()</a>, false }</code> if the input value was an empty <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion can take place. This is the only circumstance in which this can occur.</p></aside>
+<span class="go">d = 42</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code>{ end(), false }</code> if the input value was an empty <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion can take place. This is the only circumstance in which this can occur.</p></aside>
           </div></section>
           <section class="m-doc-details" id="acefff2dfe1efb072c9062b8f60146cd9"><div>
             <h3>
@@ -1269,7 +1269,7 @@
                   <th>Returns</th>
                   <td><p><strong><em>Valid input:</em></strong></p><ul><li>An iterator to the value's position</li><li><code>true</code> if the value was inserted, <code>false</code> if it was assigned.</li></ul>
 								<p><strong><em>Input is an empty <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>:</em></strong>
-							<code>{ <a class="m-doc" href="#a96da67654c5ca131cfec2e3c07aa2730">end()</a>, false }</code></p></td>
+							<code>{ end(), false }</code></p></td>
                 </tr>
               </tfoot>
             </table>
@@ -1295,7 +1295,7 @@
 <span class="go">a = 42</span>
 <span class="go">b = 2</span>
 <span class="go">c = 3</span>
-<span class="go">d = 42</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code>{ <a class="m-doc" href="#a96da67654c5ca131cfec2e3c07aa2730">end()</a>, false }</code> if the input value was an empty <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion or assignment can take place. This is the only circumstance in which this can occur.</p></aside>
+<span class="go">d = 42</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code>{ end(), false }</code> if the input value was an empty <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion or assignment can take place. This is the only circumstance in which this can occur.</p></aside>
           </div></section>
           <section class="m-doc-details" id="ad138c03bdb93f587de1d80dc98386875"><div>
             <h3>

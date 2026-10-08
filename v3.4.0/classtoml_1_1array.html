@@ -18,7 +18,7 @@
   <meta content="TOML for C++" property="og:description"/>
   <meta content="TOML for C++" itemprop="description"/>
   <meta content="telephone=no" name="format-detection"/>
-  <meta content="Poxy v0.20.1" name="generator"/>
+  <meta content="Poxy v0.27.1" name="generator"/>
   <meta content="strict-origin-when-cross-origin" name="referrer"/>
   <meta content="gbtcNgKlNiPSMKkYMw4zWFVWGPH_oU93m9n_-nb4qK8" name="google-site-verification"/>
 </head>
@@ -617,11 +617,11 @@
             <dt id="a3ab7998d733b37f51c687f7d892c205f">
               <span class="m-doc-wrap-bumper">auto <a class="m-doc-self" href="#a3ab7998d733b37f51c687f7d892c205f">at</a>(</span><span class="m-doc-wrap"><a class="m-doc poxy-injected poxy-external poxy-cppreference" href="https://en.cppreference.com/w/cpp/types/size_t" target="_blank">size_t</a> index) →  <a class="m-doc" href="classtoml_1_1node.html">node</a>&amp;</span>
             </dt>
-            <dd>Gets a reference to the element at a specific index, throwing <code><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/error/out_of_range.html" target="_blank">std::<wbr/>out_of_range</a></code> if none existed.</dd>
+            <dd>Gets a reference to the element at a specific index, throwing <code>std::out_of_range</code> if none existed.</dd>
             <dt id="a57ab2e03da0d45e4298c74b0071b78b5">
               <span class="m-doc-wrap-bumper">auto <a class="m-doc-self" href="#a57ab2e03da0d45e4298c74b0071b78b5">at</a>(</span><span class="m-doc-wrap"><a class="m-doc poxy-injected poxy-external poxy-cppreference" href="https://en.cppreference.com/w/cpp/types/size_t" target="_blank">size_t</a> index) const →  const <a class="m-doc" href="classtoml_1_1node.html">node</a>&amp;</span>
             </dt>
-            <dd>Gets a reference to the element at a specific index, throwing <code><a class="m-doc-external poxy-cppreference poxy-external" href="http://en.cppreference.com/w/cpp/error/out_of_range.html" target="_blank">std::<wbr/>out_of_range</a></code> if none existed.</dd>
+            <dd>Gets a reference to the element at a specific index, throwing <code>std::out_of_range</code> if none existed.</dd>
             <dt id="a8a7f389cd399544b6b80277afd50d5d6">
               <span class="m-doc-wrap-bumper">auto <a class="m-doc-self" href="#a8a7f389cd399544b6b80277afd50d5d6">back</a>(</span><span class="m-doc-wrap">) →  <a class="m-doc" href="classtoml_1_1node.html">node</a>&amp; <span class="m-label m-flat m-success">noexcept</span></span>
             </dt>
@@ -1113,7 +1113,7 @@
 <pre class="m-code"><span class="k">auto</span> <span class="n">arr</span> <span class="o">=</span> <span class="nn">toml</span><span class="o">::</span><span class="nc">array</span><span class="p">{</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span> <span class="p">};</span>
 <span class="n">arr</span><span class="p">.</span><span class="nf">insert</span><span class="p">(</span><span class="n">arr</span><span class="p">.</span><span class="nf">cbegin</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="s">"two"</span><span class="p">);</span>
 <span class="n">arr</span><span class="p">.</span><span class="nf">insert</span><span class="p">(</span><span class="n">arr</span><span class="p">.</span><span class="nf">cend</span><span class="p">(),</span> <span class="nn">toml</span><span class="o">::</span><span class="nc">array</span><span class="p">{</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span> <span class="p">});</span>
-<span class="nn">std</span><span class="o">::</span><span class="nc">cout</span> <span class="o">&lt;&lt;</span> <span class="n">arr</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span></pre><pre class="m-console"><span class="go">[ 1, 'two', 3, [ 4, 5 ] ]</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code><a class="m-doc" href="#adaf908b0cc3e8bcb1ee9ec9ec706d223">end()</a></code> if the input value was a null <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion can take place. This is the only circumstance in which this can occur.</p></aside>
+<span class="nn">std</span><span class="o">::</span><span class="nc">cout</span> <span class="o">&lt;&lt;</span> <span class="n">arr</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span></pre><pre class="m-console"><span class="go">[ 1, 'two', 3, [ 4, 5 ] ]</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code>end()</code> if the input value was a null <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion can take place. This is the only circumstance in which this can occur.</p></aside>
           </div></section>
           <section class="m-doc-details" id="a55a9e6e742e556ea07573d29c23ce7df"><div>
             <h3>
@@ -1176,7 +1176,7 @@
 <span class="go">    'honk',</span>
 <span class="go">    'honk',</span>
 <span class="go">    'and immediately we knew peace was never an option.'</span>
-<span class="go">]</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code><a class="m-doc" href="#adaf908b0cc3e8bcb1ee9ec9ec706d223">end()</a></code> if the input value was a null <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion can take place. This is the only circumstance in which this can occur.</p></aside>
+<span class="go">]</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code>end()</code> if the input value was a null <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no insertion can take place. This is the only circumstance in which this can occur.</p></aside>
           </div></section>
           <section class="m-doc-details" id="a60a0d39bfd8721cef23e155f5504d54d"><div>
             <h3>
@@ -1361,7 +1361,7 @@
 <span class="nn">std</span><span class="o">::</span><span class="nc">cout</span> <span class="o">&lt;&lt;</span> <span class="n">arr</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
 <span class="n">arr</span><span class="p">.</span><span class="nf">replace</span><span class="p">(</span><span class="n">arr</span><span class="p">.</span><span class="nf">cbegin</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="s">"two"</span><span class="p">);</span>
 <span class="nn">std</span><span class="o">::</span><span class="nc">cout</span> <span class="o">&lt;&lt;</span> <span class="n">arr</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span></pre><pre class="m-console"><span class="go">[ 1, 2, 3 ]</span>
-<span class="go">[ 1, 'two', 3 ]</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code><a class="m-doc" href="#adaf908b0cc3e8bcb1ee9ec9ec706d223">end()</a></code> if the input value was a null <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no replacement can take place. This is the only circumstance in which this can occur.</p></aside>
+<span class="go">[ 1, 'two', 3 ]</span></pre><aside class="m-note m-warning"><h4>Attention</h4><p>The return value will always be <code>end()</code> if the input value was a null <a class="m-doc" href="classtoml_1_1node__view.html">toml::<wbr/>node_view</a>, because no replacement can take place. This is the only circumstance in which this can occur.</p></aside>
           </div></section>
           <section class="m-doc-details" id="aec78fef35741a66cd32ddb6bd07c3d4a"><div>
             <h3>
